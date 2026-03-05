@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import ChatBot from '@/components/ChatBot';
 
 const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { 
@@ -236,6 +237,16 @@ function GuideContent() {
         >
           {isChatOpen ? '💬' : '🤖'}
         </button>
+      )}
+
+      {/* Places Link */}
+      {step === 2 && (
+        <Link
+          href="/places"
+          className="fixed bottom-6 left-6 bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-full shadow-lg text-2xl z-40"
+        >
+          🍽️
+        </Link>
       )}
 
       {/* Chat Bot */}
