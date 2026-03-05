@@ -14,14 +14,14 @@ const SofiaMap = dynamic(() => import('@/components/SofiaMap'), {
 type Language = 'en';
 
 const LANDMARKS = [
-  { id: 1, name: { en: 'Alexander Nevsky Cathedral' }, lat: 42.6961, lng: 23.3324, desc: { en: 'The iconic gold-domed Orthodox cathedral, built in 1882 in memory of Russian Tsar Alexander II.' } },
-  { id: 2, name: { en: 'St. George Rotunda' }, lat: 42.6970, lng: 23.3231, desc: { en: 'One of the oldest buildings in Sofia, a 4th-century Roman church.' } },
-  { id: 3, name: { en: 'National Palace of Culture' }, lat: 42.6850, lng: 23.3190, desc: { en: "Sofia's largest conference and cultural center, built in 1981." } },
-  { id: 4, name: { en: 'St. Sofia Church' }, lat: 42.6967, lng: 23.3316, desc: { en: 'A medieval church from the 6th century, giving the city its name.' } },
-  { id: 5, name: { en: 'Banya Bashi Mosque' }, lat: 42.7011, lng: 23.3358, desc: { en: 'Ottoman-era mosque now housing the National Archaeological Museum.' } },
-  { id: 6, name: { en: 'City Garden' }, lat: 42.6951, lng: 23.3253, desc: { en: 'The oldest public park in Sofia, opened in 1878.' } },
-  { id: 7, name: { en: 'Vitosha Boulevard' }, lat: 42.6947, lng: 23.3208, desc: { en: 'The main shopping street, lined with historic cafes and boutiques.' } },
-  { id: 8, name: { en: 'Tsar Osvoboditel Monument' }, lat: 42.6938, lng: 23.3320, desc: { en: 'Monument to the Russian Tsar who liberated Bulgaria from Ottoman rule.' } },
+  { id: 1, name: { en: 'Alexander Nevsky Cathedral' }, lat: 42.6961, lng: 23.3324, desc: { en: 'The iconic gold-domed Orthodox cathedral, built in 1882 in memory of Russian Tsar Alexander II.' }, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800' },
+  { id: 2, name: { en: 'St. George Rotunda' }, lat: 42.6970, lng: 23.3231, desc: { en: 'One of the oldest buildings in Sofia, a 4th-century Roman church.' }, image: 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=800' },
+  { id: 3, name: { en: 'National Palace of Culture' }, lat: 42.6850, lng: 23.3190, desc: { en: "Sofia's largest conference and cultural center, built in 1981." }, image: 'https://images.unsplash.com/photo-1565514020175-850ef0d52b97?w=800' },
+  { id: 4, name: { en: 'St. Sofia Church' }, lat: 42.6967, lng: 23.3316, desc: { en: 'A medieval church from the 6th century, giving the city its name.' }, image: 'https://images.unsplash.com/photo-1548625361-f5d7a2e2a846?w=800' },
+  { id: 5, name: { en: 'Banya Bashi Mosque' }, lat: 42.7011, lng: 23.3358, desc: { en: 'Ottoman-era mosque now housing the National Archaeological Museum.' }, image: 'https://images.unsplash.com/photo-1562578995494-1c4cd1a0c7b7?w=800' },
+  { id: 6, name: { en: 'City Garden' }, lat: 42.6951, lng: 23.3253, desc: { en: 'The oldest public park in Sofia, opened in 1878.' }, image: 'https://images.unsplash.com/photo-1585938389612-a552a28d6914?w=800' },
+  { id: 7, name: { en: 'Vitosha Boulevard' }, lat: 42.6947, lng: 23.3208, desc: { en: 'The main shopping street, lined with historic cafes and boutiques.' }, image: 'https://images.unsplash.com/photo-1517732306149-e8f829eb588a?w=800' },
+  { id: 8, name: { en: 'Tsar Osvoboditel Monument' }, lat: 42.6938, lng: 23.3320, desc: { en: 'Monument to the Russian Tsar who liberated Bulgaria from Ottoman rule.' }, image: 'https://images.unsplash.com/photo-1565027447449-0b7a5b5a4d5a?w=800' },
 ];
 
 const TOUR_DURATIONS = [
@@ -191,6 +191,15 @@ function GuideContent() {
                 ></div>
               </div>
             </div>
+
+            {/* Landmark Image */}
+            {LANDMARKS[currentLandmark].image && (
+              <img 
+                src={LANDMARKS[currentLandmark].image}
+                alt={t(LANDMARKS[currentLandmark].name)}
+                className="w-full h-48 object-cover rounded-xl mb-4"
+              />
+            )}
 
             <h3 className="text-2xl font-bold mb-2">{t(LANDMARKS[currentLandmark].name)}</h3>
             <p className="text-slate-300 mb-4">
