@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+if (!OPENAI_API_KEY) {
+  console.error('OPENAI_API_KEY not set in environment');
+}
+
 const LANDMARKS_INFO = `
 You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks:
 
