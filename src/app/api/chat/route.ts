@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-cconst OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const LANDMARKS_INFO = `
 You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks:
