@@ -12,7 +12,7 @@ export default function Home() {
           Your personal AI audio guide to Sofia, Bulgaria.
         </p>
         
-        <Link href="/guide" className="inline-block bg-bg-[#00D47E] hover:bg-[#00D47E] text-black font-bold py-3 px-6 rounded-full text-sm">
+        <Link href="/guide" className="inline-block bg-[#00D47E] hover:bg-[#00D47E] text-black font-bold py-3 px-6 rounded-full text-sm">
           ▶ PLAY NOW
         </Link>
       </div>

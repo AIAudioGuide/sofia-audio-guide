@@ -89,7 +89,7 @@ export default function ChatBot({ isOpen, onClose }: Props) {
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-bg-[#00D47E] text-black' : 'bg-[#282828] text-white'}`}>
+            <div className={`max-w-[80%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-[#00D47E] text-black' : 'bg-[#282828] text-white'}`}>
               {msg.content}
             </div>
           </div>
@@ -104,10 +104,10 @@ export default function ChatBot({ isOpen, onClose }: Props) {
             🎤
           </button>
           <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask about Sofia..." className="flex-1 bg-[#282828] text-white px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-bg-[#00D47E]" disabled={isLoading} />
-          <button onClick={toggleVoice} className={`p-3 rounded-full ${isSpeaking ? 'bg-bg-[#00D47E]' : 'bg-[#282828]'}`}>
+          <button onClick={toggleVoice} className={`p-3 rounded-full ${isSpeaking ? 'bg-[#00D47E]' : 'bg-[#282828]'}`}>
             {isSpeaking ? '🔊' : '🔈'}
           </button>
-          <button onClick={() => sendMessage()} disabled={isLoading || !input.trim()} className="bg-bg-[#00D47E] hover:bg-[#00D47E] text-black p-3 rounded-full disabled:opacity-50">
+          <button onClick={() => sendMessage()} disabled={isLoading || !input.trim()} className="bg-[#00D47E] hover:bg-[#00D47E] text-black p-3 rounded-full disabled:opacity-50">
             ➤
           </button>
         </div>
