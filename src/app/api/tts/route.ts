@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
           'xi-api-key': ELEVENLABS_API_KEY,
         },
         body: JSON.stringify({
-          text,
+          text: text.substring(0, 100), // Very short for speed
           model_id: 'eleven_monolingual_v1',
         }),
       }
