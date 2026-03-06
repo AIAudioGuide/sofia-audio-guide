@@ -57,8 +57,8 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: ${index === currentLandmark ? '#f59e0b' : '#475569'};
-        border: 3px solid ${index === currentLandmark ? '#fff' : '#94a3b8'};
+        background: ${index === currentLandmark ? '#00D47E' : '#475569'};
+        border: 3px solid ${index === currentLandmark ? '#00D47E' : '#94a3b8'};
         cursor: pointer;
         display: flex;
         align-items: center;
