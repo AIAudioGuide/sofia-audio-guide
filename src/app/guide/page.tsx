@@ -9,51 +9,57 @@ const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { ssr: false });
 
 const LANDMARKS = [
   { 
+    name: 'Introduction to Sofia', 
+    lat: 42.6977, lng: 23.3333,
+    desc: 'Welcome to Sofia, the capital of Bulgaria! This city has over 7000 years of history, making it one of the oldest cities in Europe. Sofia was originally founded by the Romans as Serdica in the 1st century. It has been ruled by Romans, Byzantines, Ottomans, and Bulgarians. Today it is a modern European capital with a population of about 1.3 million. Bulgaria gained independence from the Ottoman Empire in 1908. The country joined the European Union in 2007. Bulgarians are known for their hospitality, folk music, and delicious cuisine. The national currency is the Lev, and Bulgarian is the official language, written in Cyrillic script. Let us explore the city together!',
+    image: 'https://picsum.photos/seed/sofia/300/300' 
+  },
+  { 
     name: 'Sveti Alexander Nevski Cathedral', 
     lat: 42.6961, lng: 23.3324, 
-    desc: 'Welcome to Sveti Alexander Nevski Cathedral. This magnificent cathedral was built in 1882 in memory of the Russian Tsar Alexander II who helped free Bulgaria from Ottoman rule. It is one of the biggest Eastern Orthodox cathedrals in the world. The golden dome is 45 meters high and can be seen from across the city. Inside, you will find beautiful icons and the crypt houses artifacts from the Bulgarian Revival period. The cathedral is named after Saint Alexander Nevski, a Russian prince and saint who is a national hero in Bulgaria.',
+    desc: 'Welcome to Sveti Alexander Nevski Cathedral. This magnificent cathedral was built in 1882 in memory of the Russian Tsar Alexander II who helped free Bulgaria from Ottoman rule. It is one of the biggest Eastern Orthodox cathedrals in the world. The golden dome is 45 meters high and can be seen from across the city. Inside, you will find beautiful icons and the crypt houses artifacts from the Bulgarian Revival period. The cathedral is named after Saint Alexander Nevski, a Russian prince and national hero.',
     image: 'https://picsum.photos/seed/nevsky/300/300' 
   },
   { 
     name: 'Sveti Georgi Rotunda', 
     lat: 42.6970, lng: 23.3231, 
-    desc: 'You are now at the Sveti Georgi Rotunda, also known as Saint George Rotunda. This is one of the oldest buildings in Sofia, dating back to the 4th century. Originally built by the Romans in the 2nd century as a pagan temple, it was later converted to a Christian church. The walls still show medieval frescoes from the 16th century. This圆形 building has survived earthquakes and invasions throughout centuries and remains one of Sofia most treasured historical sites.',
+    desc: 'You are now at Sveti Georgi Rotunda, also known as Saint George Rotunda. This is one of the oldest buildings in Sofia, dating back to the 4th century. Originally built by the Romans in the 2nd century as a pagan temple, it was later converted to a Christian church. The walls still show beautiful medieval frescoes from the 16th century. This圆形 building has survived earthquakes and invasions throughout centuries and remains one of Sofia most treasured historical sites.',
     image: 'https://picsum.photos/seed/rotunda/300/300' 
   },
   { 
     name: 'National Palace of Culture', 
     lat: 42.6850, lng: 23.3190, 
-    desc: 'The National Palace of Culture, known locally as NDK, is the largest congress center in Southeast Europe. Built in 1981 during communist times, it has 9 main halls and over 3000 seats. The building hosts concerts, conferences, fashion shows, and cultural events year-round. The underground level connects to the metro station. This is truly the heart of Sofia modern cultural life.',
+    desc: 'The National Palace of Culture, known locally as NDK, is the largest congress center in Southeast Europe. Built in 1981 during communist times, it has 9 main halls and over 3000 seats. The building hosts concerts, conferences, fashion shows, and cultural events year round. The underground level connects directly to the metro station. This is truly the heart of Sofia modern cultural life.',
     image: 'https://picsum.photos/seed/ndk/300/300' 
   },
   { 
     name: 'Sveta Sofia Church', 
     lat: 42.6967, lng: 23.3316, 
-    desc: 'Sveta Sofia Church is a 6th-century Byzantine church that actually gave Sofia its name. Before this city was called Sofia, it was known as Serdica. This church is famous for its beautiful golden mosaics inside. According to Orthodox tradition, the altar always faces east. The church has witnessed many historical events and survived multiple earthquakes and reconstructions over the centuries.',
+    desc: 'Sveta Sofia Church is a 6th century Byzantine church that actually gave Sofia its name. Before this city was called Sofia, it was known as Serdica. The church is famous for its beautiful golden mosaics inside. According to Orthodox tradition, the altar always faces east. The church has witnessed many historical events and survived multiple earthquakes and reconstructions over the centuries.',
     image: 'https://picsum.photos/seed/stsofa/300/300' 
   },
   { 
     name: 'Banya Bashi Mosque', 
     lat: 42.7011, lng: 23.3358, 
-    desc: 'Banya Bashi Mosque is the only functioning mosque in Sofia today. It was built in 1576 during Ottoman rule by the famous architect Mimar Sinan, who also designed many famous buildings in Istanbul. The name Banya Bashi translates to Many Baths, because the minarets supposedly looked like bathhouses to the locals. Today it serves the Muslim community in Sofia and is an important religious and cultural landmark.',
+    desc: 'Banya Bashi Mosque is the only functioning mosque in Sofia today. It was built in 1576 during Ottoman rule by the famous architect Mimar Sinan, who also designed many famous buildings in Istanbul. The name Banya Bashi translates to Many Baths in Turkish, because the minarets supposedly looked like bathhouses to locals. Today it serves the Muslim community in Sofia and is an important religious and cultural landmark.',
     image: 'https://picsum.photos/seed/mosque/300/300' 
   },
   { 
     name: 'City Garden', 
     lat: 42.6951, lng: 23.3253, 
-    desc: 'City Garden is the oldest public park in Sofia, opened in 1878 after Bulgaria gained independence from Ottoman rule. The park features the beautiful Crystal Fountain from 1916, as well as monuments dedicated to famous Bulgarian writers and national revolutionaries. It is a peaceful oasis in the city center where locals come to relax, read, and enjoy the gardens.',
+    desc: 'City Garden is the oldest public park in Sofia, opened in 1878 after Bulgaria gained independence from Ottoman rule. The park features the beautiful Crystal Fountain from 1916, as well as monuments dedicated to famous Bulgarian writers and national revolutionaries. It is a peaceful oasis in the city center where locals come to relax, read, and enjoy the gardens. The park is named after the nearby Saint Sophia Church.',
     image: 'https://picsum.photos/seed/garden/300/300' 
   },
   { 
     name: 'Vitosha Boulevard', 
     lat: 42.6947, lng: 23.3208, 
-    desc: 'Vitosha Boulevard is Sofia main shopping street, known as the Bulgarian Fifth Avenue. Lined with historic cafes, restaurants, and shops, it has been the heart of Sofia social life since the 1890s. The street has been renamed several times through history but remains the place to see and be seen. Stop at one of the traditional cafes for a coffee and people watch.',
+    desc: 'Vitosha Boulevard is Sofia main shopping street, known locally as Vitosha or simply The Street. Lined with historic cafes, restaurants, and shops, it has been the heart of Sofia social life since the 1890s. The street has been renamed several times through history but remains the place to see and seen. Stop at one of the traditional coffee houses for a Bulgarian coffee and people watch.',
     image: 'https://picsum.photos/seed/vitosha/300/300' 
   },
   { 
     name: 'Monument of the Unknown Soldier', 
     lat: 42.6938, lng: 23.3320, 
-    desc: 'The Monument of the Unknown Soldier was built in 1981 to honor Bulgarian soldiers who died in wars throughout history. The eternal flame burns 24 hours a day, 7 days a week. The monument represents the medieval Bulgarian army led by Tsar Ivan Asen II. It is a place of remembrance and pride for the Bulgarian nation.',
+    desc: 'The Monument of the Unknown Soldier was built in 1981 to honor Bulgarian soldiers who died in wars throughout history. The eternal flame burns 24 hours a day, 7 days a week. The monument represents the medieval Bulgarian army led by Tsar Ivan Asen II. It is a place of remembrance and pride for the Bulgarian nation. The monument is located next to the Saint Alexander Nevski Cathedral.',
     image: 'https://picsum.photos/seed/monument/300/300' 
   },
 ];
@@ -71,7 +77,6 @@ export default function GuidePage() {
     setLoading(true);
     setError('');
     try {
-      // Say name first, then description
       const fullText = `${LANDMARKS[current].name}. ${LANDMARKS[current].desc}`;
       const res = await fetch('/api/tts', {
         method: 'POST',
