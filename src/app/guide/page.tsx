@@ -30,6 +30,18 @@ const TOUR_DURATIONS = [
   { id: 120, label: { en: '2 hours' } },
 ];
 
+// Calculate distance between two coordinates in meters
+function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000; // Earth's radius in meters
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
 function GuideContent() {
   const searchParams = useSearchParams();
   const [lang] = useState<Language>('en');
@@ -39,16 +51,68 @@ function GuideContent() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number; lng: number} | null>(null);
+  const [locationError, setLocationError] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastPlayedRef = useRef<number>(-1);
 
   const t = (obj: Record<Language, string>) => obj[lang];
 
-  // Auto-play when landmark changes
+  // Request location permission and track position
   useEffect(() => {
-    if (step === 2 && currentLandmark >= 0) {
+    if (step !== 2 || !autoPlay) return;
+
+    if (!navigator.geolocation) {
+      setLocationError('GPS not supported');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        setLocationError('');
+      },
+      (error) => {
+        setLocationError('Location access denied');
+      },
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    );
+
+    // Watch position
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, [step, autoPlay]);
+
+  // Check distance to landmarks and auto-play when close
+  useEffect(() => {
+    if (!autoPlay || !userLocation || step !== 2) return;
+
+    const current = LANDMARKS[currentLandmark];
+    const distance = getDistance(
+      userLocation.lat, userLocation.lng,
+      current.lat, current.lng
+    );
+
+    // Auto-play if within 50 meters and haven't just played this one
+    if (distance < 50 && lastPlayedRef.current !== currentLandmark) {
+      lastPlayedRef.current = currentLandmark;
       generateAndPlayAudio();
     }
-  }, [currentLandmark, step]);
+  }, [userLocation, currentLandmark, autoPlay, step]);
 
   const generateAndPlayAudio = async () => {
     setIsLoadingAudio(true);
@@ -91,6 +155,7 @@ function GuideContent() {
       setIsPlaying(false);
     }
     setCurrentLandmark(index);
+    lastPlayedRef.current = -1; // Reset so it can auto-play again
   };
 
   const handlePlay = () => {
@@ -112,6 +177,7 @@ function GuideContent() {
         setIsPlaying(false);
       }
       setCurrentLandmark(currentLandmark + 1);
+      lastPlayedRef.current = -1;
     }
   };
 
@@ -122,13 +188,34 @@ function GuideContent() {
         setIsPlaying(false);
       }
       setCurrentLandmark(currentLandmark - 1);
+      lastPlayedRef.current = -1;
     }
   };
+
+  // Get distance to current landmark
+  const currentDistance = userLocation ? Math.round(
+    getDistance(
+      userLocation.lat, userLocation.lng,
+      LANDMARKS[currentLandmark].lat, LANDMARKS[currentLandmark].lng
+    )
+  ) : null;
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
       <header className="bg-slate-800 p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">🇧🇬 Sofia Audio Guide</h1>
+        <div className="flex items-center gap-2">
+          {step === 2 && (
+            <button
+              onClick={() => setAutoPlay(!autoPlay)}
+              className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${
+                autoPlay ? 'bg-green-500 text-white' : 'bg-slate-600'
+              }`}
+            >
+              📍 {autoPlay ? 'Auto' : 'Manual'}
+            </button>
+          )}
+        </div>
       </header>
 
       {step === 1 && (
@@ -170,16 +257,36 @@ function GuideContent() {
               landmarks={LANDMARKS.map(l => ({ id: l.id, name: t(l.name), lat: l.lat, lng: l.lng }))}
               currentLandmark={currentLandmark}
               onSelectLandmark={handleLandmarkSelect}
+              userLocation={userLocation}
             />
             
             <div className="absolute top-4 left-4 bg-slate-900/80 p-4 rounded-lg">
               <p className="text-sm text-slate-400">Now Visiting</p>
               <p className="font-bold">{t(LANDMARKS[currentLandmark].name)}</p>
+              {currentDistance !== null && (
+                <p className="text-xs text-slate-400 mt-1">
+                  📍 {currentDistance}m away
+                </p>
+              )}
             </div>
+
+            {locationError && (
+              <div className="absolute bottom-4 left-4 bg-red-500/80 p-2 rounded-lg text-xs">
+                {locationError}
+              </div>
+            )}
           </div>
 
-          <div className="bg-slate-800 p-6">
-            <div className="mb-4">
+          <div className="bg-slate-800 p-4">
+            {LANDMARKS[currentLandmark].image && (
+              <img 
+                src={LANDMARKS[currentLandmark].image}
+                alt={t(LANDMARKS[currentLandmark].name)}
+                className="w-full h-32 object-cover rounded-xl mb-4"
+              />
+            )}
+
+            <div className="mb-3">
               <div className="flex justify-between text-sm text-slate-400 mb-2">
                 <span>Landmark {currentLandmark + 1} of {LANDMARKS.length}</span>
                 <span>{Math.round(((currentLandmark + 1) / LANDMARKS.length) * 100)}%</span>
@@ -192,24 +299,15 @@ function GuideContent() {
               </div>
             </div>
 
-            {/* Landmark Image */}
-            {LANDMARKS[currentLandmark].image && (
-              <img 
-                src={LANDMARKS[currentLandmark].image}
-                alt={t(LANDMARKS[currentLandmark].name)}
-                className="w-full h-48 object-cover rounded-xl mb-4"
-              />
-            )}
-
-            <h3 className="text-2xl font-bold mb-2">{t(LANDMARKS[currentLandmark].name)}</h3>
-            <p className="text-slate-300 mb-4">
+            <h3 className="text-xl font-bold mb-2">{t(LANDMARKS[currentLandmark].name)}</h3>
+            <p className="text-slate-300 mb-3 text-sm">
               {t(LANDMARKS[currentLandmark].desc)}
             </p>
-            <p className="text-slate-500 mb-6 text-sm">
-              {isLoadingAudio ? '🎧 Generating audio...' : isPlaying ? '🔊 Playing...' : '▶️ Click play to start'}
+            <p className="text-slate-500 mb-4 text-sm">
+              {isLoadingAudio ? '🎧 Loading...' : isPlaying ? '🔊 Playing...' : autoPlay ? '📍 Auto-play enabled' : '▶️ Tap to play'}
             </p>
 
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-4">
               <button
                 onClick={prevLandmark}
                 disabled={currentLandmark === 0}
@@ -221,7 +319,7 @@ function GuideContent() {
               <button
                 onClick={handlePlay}
                 disabled={isLoadingAudio}
-                className="p-6 bg-amber-500 hover:bg-amber-400 rounded-full text-slate-900 text-2xl disabled:opacity-50"
+                className="p-5 bg-amber-500 hover:bg-amber-400 rounded-full text-slate-900 text-xl disabled:opacity-50"
               >
                 {isPlaying ? '⏸️' : '▶️'}
               </button>
@@ -238,7 +336,6 @@ function GuideContent() {
         </div>
       )}
 
-      {/* Chat Button */}
       {step === 2 && (
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
@@ -248,7 +345,6 @@ function GuideContent() {
         </button>
       )}
 
-      {/* Places Link */}
       {step === 2 && (
         <Link
           href="/places"
@@ -258,7 +354,6 @@ function GuideContent() {
         </Link>
       )}
 
-      {/* Chat Bot */}
       <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
