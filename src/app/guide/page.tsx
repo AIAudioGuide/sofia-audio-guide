@@ -88,8 +88,8 @@ export default function GuidePage() {
         <h1 className="text-xl font-bold">Sofia Guide</h1>
         {step === 2 && (
           <div className="flex gap-2">
-            <button onClick={() => setShowRoute(!showRoute)} className={`px-2 py-1 rounded text-xs ${showRoute ? 'bg-[#00D47E] text-black' : 'bg-[#282828]'}`}>Route</button>
-            <button onClick={() => setAutoPlay(!autoPlay)} className={`px-2 py-1 rounded text-xs ${autoPlay ? 'bg-[#00D47E] text-black' : 'bg-[#282828]'}>GPS</button>
+            <button onClick={() => setShowRoute(!showRoute)} className={showRoute ? "px-2 py-1 rounded text-xs bg-[#00D47E] text-black" : "px-2 py-1 rounded text-xs bg-[#282828]"}>Route</button>
+            <button onClick={() => setAutoPlay(!autoPlay)} className={autoPlay ? "px-2 py-1 rounded text-xs bg-[#00D47E] text-black" : "px-2 py-1 rounded text-xs bg-[#282828]"}>GPS</button>
           </div>
         )}
       </header>
@@ -148,9 +148,9 @@ export default function GuidePage() {
       )}
 
       <nav className="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-[#282828] p-2 flex justify-around">
-        <Link href="/" className={`flex flex-col items-center p-2 ${step === 1 ? 'text-[#00D47E]' : 'text-[#b3b3b3]'}`}>Home</Link>
+        <Link href="/" className={step === 1 ? "flex flex-col items-center p-2 text-[#00D47E]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Home</Link>
         {step === 2 ? (
-          <button onClick={() => setChatOpen(!chatOpen)} className={`flex flex-col items-center p-2 ${chatOpen ? 'text-[#00D47E]' : 'text-[#b3b3b3]'}`}>Chat</button>
+          <button onClick={() => setChatOpen(!chatOpen)} className={chatOpen ? "flex flex-col items-center p-2 text-[#00D47E]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Chat</button>
         ) : (
           <Link href="/places" className="flex flex-col items-center p-2 text-[#b3b3b3]">Places</Link>
         )}
