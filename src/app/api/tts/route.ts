@@ -6,11 +6,12 @@ export async function POST(request: NextRequest) {
   try {
     const { text } = await request.json();
 
-    const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
+    // KrisVoice ID
+    const voice_id = 'Rk1yrzF84bXvI6a9zmxU';
 
-    // Use the convert endpoint which doesn't cache
+    // Use text-to-speech with voice_settings to force unique output
     const response = await fetch(
-      'https://api.elevenlabs.io/v1/text-to-speech/convert',
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
       {
         method: 'POST',
         headers: {
@@ -21,7 +22,10 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           text: text.substring(0, 100),
           model_id: 'eleven_multilingual_v2',
-          voice_id: voice_id,
+          voice_settings: {
+            stability: Math.random(),  // Random to force new generation
+            similarity_boost: Math.random(),
+          },
         }),
       }
     );
