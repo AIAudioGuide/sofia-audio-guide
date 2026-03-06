@@ -8,7 +8,7 @@ import ChatBot from '@/components/ChatBot';
 
 const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-[#121212] flex items-center justify-center text-green-500">Loading...</div>
+  loading: () => <div className="w-full h-full bg-[#121212] flex items-center justify-center text-bg-[#00D47E]">Loading...</div>
 });
 
 type Language = 'en';
@@ -135,7 +135,7 @@ function GuideContent() {
       <header className="bg-gradient-to-b from-[#202020] to-transparent p-4 flex justify-between items-center sticky top-0 z-30">
         <h1 className="text-xl font-bold">🇧🇬 Sofia Guide</h1>
         {step === 2 && (
-          <button onClick={() => setAutoPlay(!autoPlay)} className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${autoPlay ? 'bg-green-500 text-black' : 'bg-[#282828]'}`}>
+          <button onClick={() => setAutoPlay(!autoPlay)} className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${autoPlay ? 'bg-bg-[#00D47E] text-black' : 'bg-[#282828]'}`}>
             <span className="w-2 h-2 rounded-full bg-white"></span>
             {autoPlay ? 'GPS On' : 'GPS Off'}
           </button>
@@ -149,13 +149,13 @@ function GuideContent() {
           
           <div className="grid grid-cols-3 gap-2 mb-8">
             {TOUR_DURATIONS.map((d) => (
-              <button key={d.id} onClick={() => setDuration(d.id)} className={`p-3 rounded-md transition-all text-sm ${duration === d.id ? 'bg-green-500 text-black font-bold' : 'bg-[#282828] hover:bg-[#383838]'}`}>
+              <button key={d.id} onClick={() => setDuration(d.id)} className={`p-3 rounded-md transition-all text-sm ${duration === d.id ? 'bg-bg-[#00D47E] text-black font-bold' : 'bg-[#282828] hover:bg-[#383838]'}`}>
                 {t(d.label)}
               </button>
             ))}
           </div>
 
-          <button onClick={() => setStep(2)} className="w-full bg-green-500 hover:bg-[#1ed760] text-black font-bold py-3 rounded-full text-sm mb-6">
+          <button onClick={() => setStep(2)} className="w-full bg-bg-[#00D47E] hover:bg-[#00D47E] text-black font-bold py-3 rounded-full text-sm mb-6">
             ▶ START
           </button>
 
@@ -163,8 +163,8 @@ function GuideContent() {
             <Link href="/places" className="bg-[#282828] hover:bg-[#383838] p-3 rounded-md flex items-center gap-2 text-sm">
               <span className="text-lg">🍽️</span> Places
             </Link>
-            <Link href="/mission-control" className="bg-[#282828] hover:bg-[#383838] p-3 rounded-md flex items-center gap-2 text-sm">
-              <span className="text-lg">🎯</span> Progress
+            <Link href="/guide" className="bg-[#282828] hover:bg-[#383838] p-3 rounded-md flex items-center gap-2 text-sm">
+              <span className="text-lg">🎧</span> Start Tour
             </Link>
           </div>
         </div>
@@ -182,7 +182,7 @@ function GuideContent() {
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-[#b3b3b3]">NOW PLAYING</p>
                 <p className="font-bold text-sm truncate">{t(LANDMARKS[currentLandmark].name)}</p>
-                {currentDistance !== null && <p className="text-xs text-green-500">{currentDistance}m away</p>}
+                {currentDistance !== null && <p className="text-xs text-bg-[#00D47E]">{currentDistance}m away</p>}
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@ function GuideContent() {
           <div className="bg-[#181818] p-4 mx-2 mb-2 rounded-lg">
             {/* Progress */}
             <div className="mb-3">
-              <input type="range" min="0" max={LANDMARKS.length - 1} value={currentLandmark} onChange={(e) => handleLandmarkSelect(parseInt(e.target.value))} className="w-full h-1 bg-[#404040] rounded-lg appearance-none cursor-pointer accent-green-500" />
+              <input type="range" min="0" max={LANDMARKS.length - 1} value={currentLandmark} onChange={(e) => handleLandmarkSelect(parseInt(e.target.value))} className="w-full h-1 bg-[#404040] rounded-lg appearance-none cursor-pointer accent-bg-[#00D47E]" />
               <div className="flex justify-between text-[10px] text-[#b3b3b3] mt-1">
                 <span>{currentLandmark + 1}</span>
                 <span>{Math.round(((currentLandmark + 1) / LANDMARKS.length) * 100)}%</span>
@@ -221,12 +221,12 @@ function GuideContent() {
 
       {/* Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-[#282828] p-2 flex justify-around items-center">
-        <Link href="/" className={`flex flex-col items-center p-2 ${step === 1 ? 'text-green-500' : 'text-[#b3b3b3]'}`}>
+        <Link href="/" className={`flex flex-col items-center p-2 ${step === 1 ? 'text-bg-[#00D47E]' : 'text-[#b3b3b3]'}`}>
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <span className="text-[10px]">Home</span>
         </Link>
         {step === 2 ? (
-          <button onClick={() => setIsChatOpen(!isChatOpen)} className={`flex flex-col items-center p-2 ${isChatOpen ? 'text-green-500' : 'text-[#b3b3b3]'}`}>
+          <button onClick={() => setIsChatOpen(!isChatOpen)} className={`flex flex-col items-center p-2 ${isChatOpen ? 'text-bg-[#00D47E]' : 'text-[#b3b3b3]'}`}>
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             <span className="text-[10px]">Chat</span>
           </button>
@@ -236,9 +236,9 @@ function GuideContent() {
             <span className="text-[10px]">Places</span>
           </Link>
         )}
-        <Link href="/mission-control" className="flex flex-col items-center p-2 text-[#b3b3b3]">
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-          <span className="text-[10px]">Progress</span>
+        <Link href="/guide" className="flex flex-col items-center p-2 text-[#b3b3b3]">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <span className="text-[10px]">Tour</span>
         </Link>
       </nav>
 
