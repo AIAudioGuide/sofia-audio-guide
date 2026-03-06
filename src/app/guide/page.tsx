@@ -47,6 +47,7 @@ function GuideContent() {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
+  const [showRoute, setShowRoute] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number; lng: number} | null>(null);
   const [locationError, setLocationError] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -136,10 +137,15 @@ function GuideContent() {
       <header className="bg-gradient-to-b from-[#202020] to-transparent p-4 flex justify-between items-center sticky top-0 z-30">
         <h1 className="text-xl font-bold">🇧🇬 Sofia Guide</h1>
         {step === 2 && (
-          <button onClick={() => setAutoPlay(!autoPlay)} className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${autoPlay ? 'bg-[#00D47E] text-black' : 'bg-[#282828]'}`}>
-            <span className="w-2 h-2 rounded-full bg-white"></span>
-            {autoPlay ? 'GPS On' : 'GPS Off'}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setShowRoute(!showRoute)} className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${showRoute ? 'bg-[#00D47E] text-black' : 'bg-[#282828]'}`}>
+              {showRoute ? '🛤️ Route On' : '🛤️ Route'}
+            </button>
+            <button onClick={() => setAutoPlay(!autoPlay)} className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${autoPlay ? 'bg-[#00D47E] text-black' : 'bg-[#282828]'}`}>
+              <span className="w-2 h-2 rounded-full bg-white"></span>
+              {autoPlay ? 'GPS On' : 'GPS'}
+            </button>
+          </div>
         )}
       </header>
 
@@ -175,7 +181,7 @@ function GuideContent() {
         <div className="flex flex-col h-[calc(100vh-180px)]">
           {/* Map */}
           <div className="flex-1 relative rounded-lg overflow-hidden mx-2 mt-2">
-            <SofiaMap landmarks={LANDMARKS.map(l => ({ id: l.id, name: t(l.name), lat: l.lat, lng: l.lng }))} currentLandmark={currentLandmark} onSelectLandmark={handleLandmarkSelect} userLocation={userLocation} />
+            <SofiaMap landmarks={LANDMARKS.map(l => ({ id: l.id, name: t(l.name), lat: l.lat, lng: l.lng }))} currentLandmark={currentLandmark} onSelectLandmark={handleLandmarkSelect} userLocation={userLocation} showRoute={showRoute} />
             
             {/* Now Playing Overlay */}
             <div className="absolute top-3 left-3 right-3 bg-[#181818]/90 backdrop-blur-sm p-2 rounded-lg flex items-center gap-3">
