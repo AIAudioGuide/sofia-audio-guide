@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           text: text,
           model_id: 'eleven_multilingual_v2',
-          pronunciation_dictionary: [
-            { text: "Sofia", phoneme: "ˈsɒfiə" }
-          ]
+          pronunciation_dictionary: {
+            "Sofia": "SOFIA"
+          }
         }),
       }
     );
