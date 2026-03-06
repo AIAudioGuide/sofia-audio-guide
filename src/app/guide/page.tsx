@@ -86,9 +86,7 @@ function GuideContent() {
     setIsLoadingAudio(true);
     try {
       const landmark = LANDMARKS[currentLandmark];
-      // Shorter text for faster response
       const text = `${landmark.name.en}. ${landmark.desc.en.substring(0, 200)}`;
-      const seed = Date.now() + Math.random();
       const response = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, seed }) });
       const data = await response.json();
       if (data.audio) {

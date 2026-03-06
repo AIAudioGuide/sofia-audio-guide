@@ -4,10 +4,9 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || '6d25e4c0fc389c504b
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, seed } = await request.json();
+    const { text } = await request.json();
 
-    // Default voice - can be customized
-    const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
+    const voice_id = 'Rk1yrzF84bXvI6a9zmxU';
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
@@ -20,8 +19,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_multilingual_v2',
-          seed: seed || Math.floor(Math.random() * 1000000),
+          model_id: 'eleven_monolingual_v1',
         }),
       }
     );
