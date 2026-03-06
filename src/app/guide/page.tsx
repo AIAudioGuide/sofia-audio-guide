@@ -39,6 +39,7 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
 }
 
 function GuideContent() {
+  const [lang] = useState<Language>('en');
   const [step, setStep] = useState(1);
   const [duration, setDuration] = useState(60);
   const [currentLandmark, setCurrentLandmark] = useState(0);
