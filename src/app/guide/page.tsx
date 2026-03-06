@@ -200,7 +200,17 @@ function GuideContent() {
             </div>
 
             <h3 className="text-lg font-bold text-center mb-1">{t(LANDMARKS[currentLandmark].name)}</h3>
-            <p className="text-[#b3b3b3] text-xs text-center mb-4">{t(LANDMARKS[currentLandmark].desc)}</p>
+            <p className="text-[#b3b3b3] text-xs text-center mb-2">{t(LANDMARKS[currentLandmark].desc)}</p>
+            
+            {/* Directions Button */}
+            <a 
+              href={`https://www.google.com/maps/dir/?api=1&destination=${LANDMARKS[currentLandmark].lat},${LANDMARKS[currentLandmark].lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full bg-[#282828] hover:bg-[#383838] text-[#00D47E] text-center py-2 rounded-full text-sm mb-4"
+            >
+              📍 Get Directions
+            </a>
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-4">
