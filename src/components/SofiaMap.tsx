@@ -97,7 +97,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       height: 20px;
       border-radius: 50%;
       background: #3b82f6;
-      border: 3px solid white;
+      border: 3px solid #00D47E;
       box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
     `;
 
