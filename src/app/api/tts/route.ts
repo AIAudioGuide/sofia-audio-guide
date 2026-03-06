@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'sk_877d09464d9f5e95937b1ad84f30c462c6e35cce1ee49ed0';
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || '6d25e4c0fc389c504b09292836dcc6cd18367ae83335da6c1e03155196da4df0';
 
 export async function POST(request: NextRequest) {
   try {
     const { text } = await request.json();
 
     // Default voice - can be customized
-    const voice_id = '21m00Tcm4TlvDq8ikWAM'; // Rachel voice
+    const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
