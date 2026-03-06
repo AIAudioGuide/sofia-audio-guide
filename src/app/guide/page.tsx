@@ -8,7 +8,7 @@ import ChatBot from '@/components/ChatBot';
 
 const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500">Loading map...</div>
+  loading: () => <div className="w-full h-full bg-black flex items-center justify-center text-green-500">Loading...</div>
 });
 
 type Language = 'en';
@@ -32,7 +32,7 @@ const TOUR_DURATIONS = [
 
 // Calculate distance between two coordinates in meters
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371000; // Earth's radius in meters
+  const R = 6371000;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -59,7 +59,6 @@ function GuideContent() {
 
   const t = (obj: Record<Language, string>) => obj[lang];
 
-  // Request location permission and track position
   useEffect(() => {
     if (step !== 2 || !autoPlay) return;
 
@@ -70,25 +69,16 @@ function GuideContent() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         setLocationError('');
       },
-      (error) => {
-        setLocationError('Location access denied');
-      },
+      (error) => { setLocationError('Location denied'); },
       { enableHighAccuracy: true, maximumAge: 10000 }
     );
 
-    // Watch position
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
       },
       () => {},
       { enableHighAccuracy: true, maximumAge: 10000 }
@@ -97,17 +87,12 @@ function GuideContent() {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [step, autoPlay]);
 
-  // Check distance to landmarks and auto-play when close
   useEffect(() => {
     if (!autoPlay || !userLocation || step !== 2) return;
 
     const current = LANDMARKS[currentLandmark];
-    const distance = getDistance(
-      userLocation.lat, userLocation.lng,
-      current.lat, current.lng
-    );
+    const distance = getDistance(userLocation.lat, userLocation.lng, current.lat, current.lng);
 
-    // Auto-play if within 50 meters and haven't just played this one
     if (distance < 50 && lastPlayedRef.current !== currentLandmark) {
       lastPlayedRef.current = currentLandmark;
       generateAndPlayAudio();
@@ -129,16 +114,10 @@ function GuideContent() {
       const data = await response.json();
       
       if (data.audio) {
-        if (audioRef.current) {
-          audioRef.current.pause();
-        }
+        if (audioRef.current) audioRef.current.pause();
         const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
         audioRef.current = audio;
-        
-        audio.onended = () => {
-          setIsPlaying(false);
-        };
-        
+        audio.onended = () => setIsPlaying(false);
         audio.play();
         setIsPlaying(true);
       }
@@ -150,12 +129,9 @@ function GuideContent() {
   };
 
   const handleLandmarkSelect = (index: number) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
+    if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
     setCurrentLandmark(index);
-    lastPlayedRef.current = -1; // Reset so it can auto-play again
+    lastPlayedRef.current = -1;
   };
 
   const handlePlay = () => {
@@ -172,10 +148,7 @@ function GuideContent() {
 
   const nextLandmark = () => {
     if (currentLandmark < LANDMARKS.length - 1) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
+      if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
       setCurrentLandmark(currentLandmark + 1);
       lastPlayedRef.current = -1;
     }
@@ -183,76 +156,79 @@ function GuideContent() {
 
   const prevLandmark = () => {
     if (currentLandmark > 0) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
+      if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
       setCurrentLandmark(currentLandmark - 1);
       lastPlayedRef.current = -1;
     }
   };
 
-  // Get distance to current landmark
-  const currentDistance = userLocation ? Math.round(
-    getDistance(
-      userLocation.lat, userLocation.lng,
-      LANDMARKS[currentLandmark].lat, LANDMARKS[currentLandmark].lng
-    )
-  ) : null;
+  const currentDistance = userLocation ? Math.round(getDistance(userLocation.lat, userLocation.lng, LANDMARKS[currentLandmark].lat, LANDMARKS[currentLandmark].lng)) : null;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      <header className="bg-slate-800 p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">🇧🇬 Sofia Audio Guide</h1>
-        <div className="flex items-center gap-2">
-          {step === 2 && (
-            <button
-              onClick={() => setAutoPlay(!autoPlay)}
-              className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${
-                autoPlay ? 'bg-green-500 text-white' : 'bg-slate-600'
-              }`}
-            >
-              📍 {autoPlay ? 'Auto' : 'Manual'}
-            </button>
-          )}
-        </div>
+    <div className="min-h-screen bg-black text-white">
+      {/* Top Bar */}
+      <header className="bg-gradient-to-b from-gray-900 to-black p-4 flex justify-between items-center sticky top-0 z-30">
+        <h1 className="text-xl font-bold">🇧🇬 Sofia Guide</h1>
+        {step === 2 && (
+          <button
+            onClick={() => setAutoPlay(!autoPlay)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 ${
+              autoPlay ? 'bg-green-500 text-black' : 'bg-gray-800'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-white"></span>
+            {autoPlay ? 'GPS On' : 'GPS Off'}
+          </button>
+        )}
       </header>
 
       {step === 1 && (
-        <div className="max-w-2xl mx-auto px-4 py-12">
-          <h2 className="text-3xl font-bold mb-8">Configure Your Tour</h2>
+        <div className="p-6">
+          <h2 className="text-3xl font-bold mb-2">Discover Sofia</h2>
+          <p className="text-gray-400 mb-8">Your personal audio guide</p>
           
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4">Tour Duration</h3>
-            <div className="flex gap-4">
-              {TOUR_DURATIONS.map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => setDuration(d.id)}
-                  className={`px-6 py-3 rounded-lg transition-all ${
-                    duration === d.id 
-                      ? 'bg-amber-500 text-slate-900 font-bold' 
-                      : 'bg-slate-700 hover:bg-slate-600'
-                  }`}
-                >
-                  {t(d.label)}
-                </button>
-              ))}
-            </div>
+          {/* Duration Cards */}
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            {TOUR_DURATIONS.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setDuration(d.id)}
+                className={`p-4 rounded-lg transition-all ${
+                  duration === d.id 
+                    ? 'bg-green-500 text-black font-bold' 
+                    : 'bg-gray-800 hover:bg-gray-700'
+                }`}
+              >
+                {t(d.label)}
+              </button>
+            ))}
           </div>
 
           <button
             onClick={() => setStep(2)}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-4 rounded-xl text-lg"
+            className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-4 rounded-full text-lg mb-6"
           >
-            Start Tour →
+            ▶ Start Tour
           </button>
+
+          {/* Quick Links */}
+          <div className="grid grid-cols-2 gap-3">
+            <Link href="/places" className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex items-center gap-3">
+              <span className="text-2xl">🍽️</span>
+              <span>Restaurants & Bars</span>
+            </Link>
+            <Link href="/mission-control" className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg flex items-center gap-3">
+              <span className="text-2xl">🎯</span>
+              <span>Progress</span>
+            </Link>
+          </div>
         </div>
       )}
 
       {step === 2 && (
-        <div className="flex flex-col h-[calc(100vh-73px)]">
-          <div className="flex-1 bg-slate-800 relative">
+        <div className="flex flex-col h-[calc(100vh-140px)]">
+          {/* Map */}
+          <div className="flex-1 relative">
             <SofiaMap 
               landmarks={LANDMARKS.map(l => ({ id: l.id, name: t(l.name), lat: l.lat, lng: l.lng }))}
               currentLandmark={currentLandmark}
@@ -260,99 +236,99 @@ function GuideContent() {
               userLocation={userLocation}
             />
             
-            <div className="absolute top-4 left-4 bg-slate-900/80 p-4 rounded-lg">
-              <p className="text-sm text-slate-400">Now Visiting</p>
-              <p className="font-bold">{t(LANDMARKS[currentLandmark].name)}</p>
-              {currentDistance !== null && (
-                <p className="text-xs text-slate-400 mt-1">
-                  📍 {currentDistance}m away
-                </p>
-              )}
-            </div>
-
-            {locationError && (
-              <div className="absolute bottom-4 left-4 bg-red-500/80 p-2 rounded-lg text-xs">
-                {locationError}
+            {/* Now Playing Card */}
+            <div className="absolute top-4 left-4 right-4 bg-black/80 backdrop-blur-md p-3 rounded-xl">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={LANDMARKS[currentLandmark].image}
+                  alt={t(LANDMARKS[currentLandmark].name)}
+                  className="w-14 h-14 rounded-lg object-cover"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-400">NOW PLAYING</p>
+                  <p className="font-bold truncate">{t(LANDMARKS[currentLandmark].name)}</p>
+                  {currentDistance !== null && (
+                    <p className="text-xs text-green-500">{currentDistance}m away</p>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
-          <div className="bg-slate-800 p-4">
-            {LANDMARKS[currentLandmark].image && (
-              <img 
-                src={LANDMARKS[currentLandmark].image}
-                alt={t(LANDMARKS[currentLandmark].name)}
-                className="w-full h-32 object-cover rounded-xl mb-4"
+          {/* Player */}
+          <div className="bg-gray-900 p-4">
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <input 
+                type="range" 
+                min="0" 
+                max={LANDMARKS.length - 1} 
+                value={currentLandmark}
+                onChange={(e) => handleLandmarkSelect(parseInt(e.target.value))}
+                className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
               />
-            )}
-
-            <div className="mb-3">
-              <div className="flex justify-between text-sm text-slate-400 mb-2">
-                <span>Landmark {currentLandmark + 1} of {LANDMARKS.length}</span>
+              <div className="flex justify-between text-xs text-gray-400 mt-2">
+                <span>Landmark {currentLandmark + 1}</span>
                 <span>{Math.round(((currentLandmark + 1) / LANDMARKS.length) * 100)}%</span>
-              </div>
-              <div className="h-2 bg-slate-700 rounded-full">
-                <div 
-                  className="h-full bg-amber-500 rounded-full transition-all"
-                  style={{ width: `${((currentLandmark + 1) / LANDMARKS.length) * 100}%` }}
-                ></div>
               </div>
             </div>
 
-            <h3 className="text-xl font-bold mb-2">{t(LANDMARKS[currentLandmark].name)}</h3>
-            <p className="text-slate-300 mb-3 text-sm">
-              {t(LANDMARKS[currentLandmark].desc)}
-            </p>
-            <p className="text-slate-500 mb-4 text-sm">
-              {isLoadingAudio ? '🎧 Loading...' : isPlaying ? '🔊 Playing...' : autoPlay ? '📍 Auto-play enabled' : '▶️ Tap to play'}
-            </p>
+            {/* Info */}
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold">{t(LANDMARKS[currentLandmark].name)}</h3>
+              <p className="text-gray-400 text-sm">{t(LANDMARKS[currentLandmark].desc)}</p>
+            </div>
 
-            <div className="flex items-center justify-center gap-4">
-              <button
-                onClick={prevLandmark}
-                disabled={currentLandmark === 0}
-                className="p-3 bg-slate-700 rounded-full disabled:opacity-50"
-              >
-                ⏮️
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-6">
+              <button onClick={prevLandmark} disabled={currentLandmark === 0} className="text-gray-400 disabled:opacity-30">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
               </button>
               
-              <button
-                onClick={handlePlay}
+              <button 
+                onClick={handlePlay} 
                 disabled={isLoadingAudio}
-                className="p-5 bg-amber-500 hover:bg-amber-400 rounded-full text-slate-900 text-xl disabled:opacity-50"
+                className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-400 flex items-center justify-center disabled:opacity-50"
               >
-                {isPlaying ? '⏸️' : '▶️'}
+                {isLoadingAudio ? (
+                  <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                ) : isPlaying ? (
+                  <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                ) : (
+                  <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                )}
               </button>
               
-              <button
-                onClick={nextLandmark}
-                disabled={currentLandmark === LANDMARKS.length - 1}
-                className="p-3 bg-slate-700 rounded-full disabled:opacity-50"
-              >
-                ⏭️
+              <button onClick={nextLandmark} disabled={currentLandmark === LANDMARKS.length - 1} className="text-gray-400 disabled:opacity-30">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {step === 2 && (
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-6 right-6 bg-amber-500 hover:bg-amber-400 text-slate-900 p-4 rounded-full shadow-lg text-2xl z-40"
-        >
-          {isChatOpen ? '💬' : '🤖'}
-        </button>
-      )}
-
-      {step === 2 && (
-        <Link
-          href="/places"
-          className="fixed bottom-6 left-6 bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-full shadow-lg text-2xl z-40"
-        >
-          🍽️
+      {/* Bottom Nav */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 p-2 flex justify-around items-center">
+        <Link href="/" className={`flex flex-col items-center p-2 ${step === 1 ? 'text-green-500' : 'text-gray-400'}`}>
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <span className="text-xs">Home</span>
         </Link>
-      )}
+        {step === 2 ? (
+          <button onClick={() => setIsChatOpen(!isChatOpen)} className={`flex flex-col items-center p-2 ${isChatOpen ? 'text-green-500' : 'text-gray-400'}`}>
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            <span className="text-xs">Chat</span>
+          </button>
+        ) : (
+          <Link href="/places" className="flex flex-col items-center p-2 text-gray-400">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+            <span className="text-xs">Places</span>
+          </Link>
+        )}
+        <Link href="/mission-control" className="flex flex-col items-center p-2 text-gray-400">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          <span className="text-xs">Progress</span>
+        </Link>
+      </nav>
 
       <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
@@ -361,7 +337,7 @@ function GuideContent() {
 
 export default function GuidePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>}>
       <GuideContent />
     </Suspense>
   );
