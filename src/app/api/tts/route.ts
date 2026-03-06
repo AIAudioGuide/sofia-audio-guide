@@ -8,10 +8,8 @@ export async function POST(request: NextRequest) {
 
     const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
 
-    // Add subtle text variation to prevent caching
-    const variations = ['', '.', '..', '...'];
-    const variation = variations[Math.floor(Math.random() * variations.length)];
-    const uniqueText = text + variation;
+    // Add unique prefix to force new audio
+    const uniqueText = `${Date.now()} ${text}`;
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
