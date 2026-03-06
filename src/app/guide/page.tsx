@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import ChatBot from '@/components/ChatBot';
@@ -18,14 +18,51 @@ const LANDMARKS = [
   { name: 'Monument of the Unknown Soldier', lat: 42.6938, lng: 23.3320, desc: 'Built in 1981 to honor Bulgarian soldiers who died in war. The eternal flame burns 24/7.', image: 'https://picsum.photos/seed/monument/300/300' },
 ];
 
+// Browser TTS function
+function speakText(text: string) {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    return utterance;
+  }
+  return null;
+}
+
 export default function GuidePage() {
   const [step, setStep] = useState(1);
   const [current, setCurrent] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [showRoute, setShowRoute] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
 
-  const next = () => setCurrent(c => c < LANDMARKS.length - 1 ? c + 1 : c);
-  const prev = () => setCurrent(c => c > 0 ? c - 1 : c);
+  const next = () => {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+    setCurrent(c => c < LANDMARKS.length - 1 ? c + 1 : c);
+  };
+
+  const prev = () => {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+    setCurrent(c => c > 0 ? c - 1 : c);
+  };
+
+  const playAudio = () => {
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+    } else {
+      const utterance = speakText(LANDMARKS[current].desc);
+      if (utterance) {
+        utterance.onstart = () => setSpeaking(true);
+        utterance.onend = () => setSpeaking(false);
+        utterance.onerror = () => setSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">
@@ -48,7 +85,7 @@ export default function GuidePage() {
       {step === 2 && (
         <div className="flex flex-col h-[calc(100vh-120px)]">
           <div className="flex-1 relative mx-2 mt-2 rounded-lg overflow-hidden">
-            <SofiaMap landmarks={LANDMARKS.map((l, i) => ({id: i, name: l.name, lat: l.lat, lng: l.lng}))} currentLandmark={current} onSelectLandmark={setCurrent} userLocation={null} showRoute={showRoute} />
+            <SofiaMap landmarks={LANDMARKS.map((l, i) => ({id: i, name: l.name, lat: l.lat, lng: l.lng}))} currentLandmark={current} onSelectLandmark={(i) => { window.speechSynthesis.cancel(); setCurrent(i); setSpeaking(false); }} userLocation={null} showRoute={showRoute} />
             <div className="absolute top-3 left-3 bg-[#181818] p-2 rounded-lg flex items-center gap-2">
               <img src={LANDMARKS[current].image} className="w-10 h-10 rounded" alt="" />
               <div>
@@ -59,14 +96,16 @@ export default function GuidePage() {
           </div>
           
           <div className="bg-[#181818] p-4 mx-2 mb-2 rounded-lg">
-            <input type="range" min="0" max={LANDMARKS.length - 1} value={current} onChange={(e) => setCurrent(parseInt(e.target.value))} className="w-full h-1 bg-[#404040] rounded accent-[#00D47E] mb-3" />
+            <input type="range" min="0" max={LANDMARKS.length - 1} value={current} onChange={(e) => { window.speechSynthesis.cancel(); setCurrent(parseInt(e.target.value)); setSpeaking(false); }} className="w-full h-1 bg-[#404040] rounded accent-[#00D47E] mb-3" />
             <div className="text-center">
               <h3 className="font-bold text-lg">{LANDMARKS[current].name}</h3>
               <p className="text-[#b3b3b3] text-sm mt-2">{LANDMARKS[current].desc}</p>
             </div>
             <div className="flex items-center justify-center gap-4 mt-4">
               <button onClick={prev} disabled={current === 0} className="text-[#b3b3b3] disabled:opacity-30">Prev</button>
-              <div className="w-12 h-12 rounded-full bg-[#282828] flex items-center justify-center">🎧</div>
+              <button onClick={playAudio} className="w-12 h-12 rounded-full bg-[#00D47E] text-black font-bold">
+                {speaking ? '⏹' : '▶'}
+              </button>
               <button onClick={next} disabled={current === LANDMARKS.length - 1} className="text-[#b3b3b3] disabled:opacity-30">Next</button>
             </div>
           </div>
