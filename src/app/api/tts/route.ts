@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const voice_id = 'Rk1yrzF84bXvI6a9zmxU';
 
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}?allow_cache=false`,
       {
         method: 'POST',
         headers: {
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
           'xi-api-key': ELEVENLABS_API_KEY,
         },
         body: JSON.stringify({
-          text: text.substring(0, 100), // Very short for speed
+          text: text.substring(0, 100),
           model_id: 'eleven_monolingual_v1',
         }),
       }
@@ -26,18 +26,15 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('ElevenLabs API error:', error);
       return NextResponse.json({ error: error }, { status: 500 });
     }
 
-    // Convert to base64
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64 = buffer.toString('base64');
 
     return NextResponse.json({ audio: base64 });
-  } catch (error) {
-    console.error('TTS error:', error);
-    return NextResponse.json({ error: 'Failed to generate audio' }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Failed to generate audio' }, { status: 500 });
   }
 }
