@@ -4,7 +4,7 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || '6d25e4c0fc389c504b
 
 export async function POST(request: NextRequest) {
   try {
-    const { text } = await request.json();
+    const { text, seed } = await request.json();
 
     // Default voice - can be customized
     const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           text,
           model_id: 'eleven_multilingual_v2',
+          seed: seed || Math.floor(Math.random() * 1000000),
         }),
       }
     );

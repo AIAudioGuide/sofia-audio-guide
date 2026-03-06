@@ -87,7 +87,8 @@ function GuideContent() {
     try {
       const landmark = LANDMARKS[currentLandmark];
       const text = `${landmark.name.en}. ${landmark.desc.en}`;
-      const response = await fetch('/api/tts?_=' + Date.now(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+      const seed = Date.now() + Math.random();
+      const response = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, seed }) });
       const data = await response.json();
       if (data.audio) {
         if (audioRef.current) audioRef.current.pause();
