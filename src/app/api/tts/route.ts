@@ -6,13 +6,11 @@ export async function POST(request: NextRequest) {
   try {
     const { text } = await request.json();
 
-    const voice_id = 'Rk1yrzF84bXvI6a9zmxU'; // KrisVoice
+    const voice_id = 'Rk1yrzF84bXvI6a9zmxU';
 
-    // Add unique prefix to force new audio
-    const uniqueText = `${Date.now()} ${text}`;
-
+    // Add timestamp as query param to prevent caching, not in text
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}?timestamp=${Date.now()}`,
       {
         method: 'POST',
         headers: {
@@ -21,7 +19,7 @@ export async function POST(request: NextRequest) {
           'xi-api-key': ELEVENLABS_API_KEY || '',
         },
         body: JSON.stringify({
-          text: uniqueText,
+          text: text,
           model_id: 'eleven_multilingual_v2',
         }),
       }
