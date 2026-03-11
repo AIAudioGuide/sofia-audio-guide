@@ -55,17 +55,20 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       const el = document.createElement('div');
       el.className = 'marker';
       el.style.cssText = `
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
-        background: ${index === currentLandmark ? '#00D47E' : '#475569'};
-        border: 3px solid ${index === currentLandmark ? '#00D47E' : '#94a3b8'};
+        background: ${index === currentLandmark ? '#00D47E' : '#1a1a1a'};
+        border: 3px solid ${index === currentLandmark ? '#00D47E' : '#475569'};
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        font-size: 12px;
+        font-weight: bold;
+        color: ${index === currentLandmark ? '#000' : '#fff'};
         transition: all 0.3s;
+        box-shadow: ${index === currentLandmark ? '0 0 15px rgba(0,212,126,0.6)' : 'none'};
       `;
       el.innerHTML = String(index + 1);
       el.onclick = () => onSelectLandmark(index);
@@ -80,18 +83,15 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
     if (landmarks[currentLandmark]) {
       map.current.flyTo({
         center: [landmarks[currentLandmark].lng, landmarks[currentLandmark].lat],
-        zoom: 15,
-        duration: 1500,
+        zoom: 14,
+        duration: 1000,
       });
     }
   }, [currentLandmark, landmarks, onSelectLandmark]);
 
-  // Show route when toggle is on
+  // Show route connecting all stops
   useEffect(() => {
-    if (!map.current || !showRoute || !userLocation) return;
-
-    const current = landmarks[currentLandmark];
-    if (!current) return;
+    if (!map.current || !showRoute) return;
 
     // Remove existing route
     if (map.current.getLayer(routeLayerId)) {
@@ -101,61 +101,55 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       map.current.removeSource(routeLayerId);
     }
 
-    // Get directions from user location to current landmark
-    const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${userLocation.lng},${userLocation.lat};${current.lng},${current.lat}?geometries=geojson&access_token=process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`;
+    // Build route coordinates from all landmarks
+    const coordinates = landmarks.map(l => [l.lng, l.lat] as [number, number]);
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        if (data.routes && data.routes[0]) {
-          const route = data.routes[0].geometry;
+    // Add user location if available
+    if (userLocation) {
+      coordinates.unshift([userLocation.lng, userLocation.lat]);
+    }
 
-          map.current?.addSource(routeLayerId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: route
-            }
-          });
-
-          map.current?.addLayer({
-            id: routeLayerId,
-            type: 'line',
-            source: routeLayerId,
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
-            },
-            paint: {
-              'line-color': '#00D47E',
-              'line-width': 4,
-              'line-opacity': 0.8
-            }
-          });
-
-          onRouteShown?.(true);
-
-          // Fit bounds to show entire route
-          const coords = route.coordinates;
-          const bounds = coords.reduce((b, coord) => {
-            return b.extend(coord);
-          }, new mapboxgl.LngLatBounds(coords[0], coords[0]));
-
-          map.current?.fitBounds(bounds, { padding: 50 });
+    // Create a simple straight-line route (in production, you'd use Mapbox Directions API)
+    map.current.addSource(routeLayerId, {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates
         }
-      })
-      .catch(err => console.error('Route error:', err));
+      }
+    });
 
-    return () => {
-      if (map.current?.getLayer(routeLayerId)) {
-        map.current.removeLayer(routeLayerId);
+    map.current.addLayer({
+      id: routeLayerId,
+      type: 'line',
+      source: routeLayerId,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#00D47E',
+        'line-width': 3,
+        'line-opacity': 0.7,
+        'line-dasharray': [2, 1]
       }
-      if (map.current?.getSource(routeLayerId)) {
-        map.current.removeSource(routeLayerId);
-      }
-    };
-  }, [showRoute, userLocation, currentLandmark, landmarks, onRouteShown]);
+    });
+
+    onRouteShown?.(true);
+
+    // Fit bounds to show entire route
+    if (coordinates.length > 1) {
+      const bounds = coordinates.reduce((b, coord) => {
+        return b.extend(coord as [number, number]);
+      }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+      map.current.fitBounds(bounds, { padding: 40, duration: 1000 });
+    }
+
+  }, [showRoute, landmarks, userLocation, onRouteShown]);
 
   // User location marker
   useEffect(() => {
@@ -163,11 +157,11 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
 
     const userEl = document.createElement('div');
     userEl.style.cssText = `
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       background: #3b82f6;
-      border: 3px solid #00D47E;
+      border: 3px solid white;
       box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
     `;
 
