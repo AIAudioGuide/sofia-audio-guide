@@ -145,6 +145,23 @@ export default function GuidePage() {
     setError('');
     setPlayingIndex(index);
     try {
+      // Check if there's a local audio file for this stop
+      const audioFiles = ['intro-enhanced', 'intro', 'stop-1', 'stop-2', 'stop-3', 'stop-4', 'stop-5', 'stop-6', 'stop-7', 'stop-8', 'stop-9', 'stop-10', 'stop-11', 'stop-12', 'stop-13', 'stop-14', 'stop-15', 'stop-16', 'stop-17'];
+      const audioFile = audioFiles[index];
+      
+      if (audioFile) {
+        const audioRes = await fetch(`/audio/${audioFile}.m4a`);
+        if (audioRes.ok) {
+          if (audioRef.current) audioRef.current.pause();
+          audioRef.current = new Audio(`/audio/${audioFile}.m4a`);
+          audioRef.current.play();
+          audioRef.current.onended = () => setPlayingIndex(null);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Fall back to TTS
       const fullText = `${LANDMARKS[index].name}. ${LANDMARKS[index].desc}`;
       const res = await fetch('/api/tts', {
         method: 'POST',
