@@ -162,7 +162,7 @@ export default function GuidePage() {
       setImageIndexMap(prev => ({ ...prev, [current]: 0 }));
       const timer = setTimeout(() => {
         setImageIndexMap(prev => ({ ...prev, [current]: 1 }));
-      }, 20000);
+      }, 35000);
       return () => clearTimeout(timer);
     }
   }, [current]);
@@ -384,13 +384,7 @@ export default function GuidePage() {
                     <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-[#8DC63F] text-black font-bold flex items-center justify-center text-sm">
                       {index + 1}
                     </div>
-                    {current === index && (
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <div className="w-10 h-10 rounded-full bg-[#8DC63F] flex items-center justify-center">
-                          <span className="text-black text-lg">▶</span>
-                        </div>
-                      </div>
-                    )}
+
                   </div>
                   
                   {/* Content */}
