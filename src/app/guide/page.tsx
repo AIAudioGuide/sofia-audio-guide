@@ -294,13 +294,15 @@ export default function GuidePage() {
 
   const next = () => {
     stopAudio();
-    setCurrent(c => c < LANDMARKS.length - 1 ? c + 1 : c); 
+    setCurrent(c => c < LANDMARKS.length - 1 ? c + 1 : c);
+    setSelectVersion(v => v + 1);
     scrollToStop(current + 1);
   };
   
   const prev = () => { 
     stopAudio();
-    setCurrent(c => c > 0 ? c - 1 : c); 
+    setCurrent(c => c > 0 ? c - 1 : c);
+    setSelectVersion(v => v + 1);
     scrollToStop(current - 1);
   };
 
