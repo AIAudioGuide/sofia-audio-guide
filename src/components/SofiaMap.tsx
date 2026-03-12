@@ -56,13 +56,21 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
     const landmark = landmarks[currentLandmark];
     if (!landmark) return;
 
-    const vp = landmark.viewingPoint;
-    map.current.flyTo({
-      center: [vp?.lng || landmark.lng, vp?.lat || landmark.lat],
-      zoom: 16,
-      duration: 1000,
-    });
-  }, [currentLandmark, landmarks]);
+    const doFly = () => {
+      const vp = landmark.viewingPoint;
+      map.current?.flyTo({
+        center: [vp?.lng || landmark.lng, vp?.lat || landmark.lat],
+        zoom: 16,
+        duration: 1000,
+      });
+    };
+
+    if (map.current.isStyleLoaded()) {
+      doFly();
+    } else {
+      map.current.once('load', doFly);
+    }
+  }, [currentLandmark]);
 
   // Initialize markers only once
   useEffect(() => {

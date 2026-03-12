@@ -146,7 +146,27 @@ export default function GuidePage() {
     setPlayingIndex(index);
     try {
       // Check if there's a local audio file for this stop
-      const audioFiles = ['sv-nedelya', 'statue-sofia', 'intro-enhanced', 'intro', 'stop-1', 'stop-2', 'stop-3', 'stop-4', 'stop-5', 'stop-6', 'stop-7', 'stop-8', 'stop-9', 'stop-10', 'stop-11', 'stop-12', 'stop-13', 'stop-14', 'stop-15', 'stop-16', 'stop-17'];
+      const audioFiles = ['sv-nedelya', 'statue-sofia', 'st-petka', 'intro-enhanced', 'intro', 'stop-1', 'stop-2', 'stop-3', 'stop-4', 'stop-5', 'stop-6', 'stop-7', 'stop-8', 'stop-9', 'stop-10', 'stop-11', 'stop-12', 'stop-13', 'stop-14', 'stop-15', 'stop-16', 'stop-17'];
+      
+      // For first stop, play both intro and sv-nedelya recordings
+      if (index === 0) {
+        if (audioRef.current) audioRef.current.pause();
+        
+        // Play intro first, then sv-nedelya
+        const introAudio = new Audio('/audio/intro.m4a');
+        introAudio.play();
+        
+        introAudio.onended = () => {
+          const svNedelyaAudio = new Audio('/audio/sv-nedelya.m4a');
+          audioRef.current = svNedelyaAudio;
+          svNedelyaAudio.play();
+          svNedelyaAudio.onended = () => setPlayingIndex(null);
+        };
+        
+        setLoading(false);
+        return;
+      }
+      
       const audioFile = audioFiles[index];
       
       if (audioFile) {
