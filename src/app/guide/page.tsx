@@ -391,8 +391,7 @@ export default function GuidePage() {
                   
                   {/* Content */}
                   <div className="p-3">
-                    <h3 className="font-bold text-sm mb-1 line-clamp-1">{landmark.name}</h3>
-                    <p className="text-[#888] text-xs line-clamp-2 mb-2">{landmark.desc}</p>
+                    <h3 className="font-bold text-sm mb-2 line-clamp-1">{landmark.name}</h3>
                     
                     {/* Play button */}
                     <button 
