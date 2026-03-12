@@ -13,14 +13,14 @@ const LANDMARKS = [
     lat: 42.69687398967523, lng: 23.321332567200447,
     viewingPoint: { lat: 42.69687398967523, lng: 23.321332567200447 },
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
-    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=400&h=300&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1565031491318-a22927f675c4?w=400&h=300&fit=crop' 
   },
   { 
     name: 'Statue of Sofia', 
     lat: 42.6981069867003, lng: 23.32140915370634,
     viewingPoint: { lat: 42.6981069867003, lng: 23.32140915370634 },
     desc: 'The Statue of Sofia is an iconic monument depicting the goddess Sofia. Located near St. Sofia Church, this bronze statue symbolizes the wisdom and spirit of the city. It was unveiled in 2000.',
-    image: 'https://images.unsplash.com/photo-1568322503950-72d8a10a8e1b?w=400&h=300&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1574672280600-4accfa5b6f98?w=400&h=300&fit=crop' 
   },
   { 
     name: 'St. Petka of the Saddlemakers', 
@@ -289,7 +289,13 @@ export default function GuidePage() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        playingIndex === index ? stopAudio() : playAudio(index);
+                        if (playingIndex === index) {
+                          stopAudio();
+                        } else {
+                          setCurrent(index);
+                          scrollToStop(index);
+                          playAudio(index);
+                        }
                       }}
                       disabled={loading}
                       className={`w-full py-1.5 rounded text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
@@ -315,7 +321,7 @@ export default function GuidePage() {
             <div className="w-1/2 pl-2">
               <div className="rounded-lg overflow-hidden h-full">
                 <SofiaMap 
-                  landmarks={LANDMARKS.map((l, i) => ({id: i, name: l.name, lat: l.lat, lng: l.lng}))} 
+                  landmarks={LANDMARKS.map((l, i) => ({id: i, name: l.name, lat: l.lat, lng: l.lng, viewingPoint: l.viewingPoint}))} 
                   currentLandmark={current} 
                   onSelectLandmark={(i) => { stopAudio(); setCurrent(i); scrollToStop(i); }} 
                   userLocation={null} 
