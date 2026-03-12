@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -10,6 +10,7 @@ type Landmark = {
   lat: number;
   lng: number;
   viewingPoint?: { lat: number; lng: number };
+  waypointsToNext?: { lat: number; lng: number }[];
 };
 
 type Props = {
@@ -19,13 +20,21 @@ type Props = {
   userLocation?: { lat: number; lng: number } | null;
   showRoute?: boolean;
   onRouteShown?: (shown: boolean) => void;
+  isPlaying?: boolean;
+  // Incremented each time the user explicitly selects a stop (triggers zoom)
+  selectVersion?: number;
 };
 
-export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark, userLocation, showRoute, onRouteShown }: Props) {
+export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark, userLocation, showRoute, onRouteShown, isPlaying, selectVersion = 0 }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
+  const landmarksRef = useRef(landmarks);
+  landmarksRef.current = landmarks;
   const routeLayerId = 'route';
+  
+  // Track last selectVersion to detect explicit user selections
+  const lastSelectVersionRef = useRef<number>(-1);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -36,7 +45,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [23.3218, 42.6977],
-      zoom: 14,
+      zoom: 16,
       interactive: true,
     });
 
@@ -48,29 +57,6 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       map.current?.remove();
     };
   }, []);
-
-  // Fly to current landmark when it changes
-  useEffect(() => {
-    if (!map.current) return;
-    
-    const landmark = landmarks[currentLandmark];
-    if (!landmark) return;
-
-    const doFly = () => {
-      const vp = landmark.viewingPoint;
-      map.current?.flyTo({
-        center: [vp?.lng || landmark.lng, vp?.lat || landmark.lat],
-        zoom: 16,
-        duration: 1000,
-      });
-    };
-
-    if (map.current.isStyleLoaded()) {
-      doFly();
-    } else {
-      map.current.once('load', doFly);
-    }
-  }, [currentLandmark]);
 
   // Initialize markers only once
   useEffect(() => {
@@ -120,18 +106,38 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
     markers.current.forEach((marker, index) => {
       const el = marker.getElement();
       const isActive = index === currentLandmark;
-      el.style.background = isActive ? '#00D47E' : '#1a1a1a';
-      el.style.borderColor = isActive ? '#00D47E' : '#475569';
+      el.style.background = isActive ? '#8DC63F' : '#1a1a1a';
+      el.style.borderColor = isActive ? '#8DC63F' : '#475569';
       el.style.color = isActive ? '#000' : '#fff';
       el.style.boxShadow = isActive ? '0 0 15px rgba(0,212,126,0.6)' : 'none';
     });
   }, [currentLandmark]);
 
+  // Zoom to landmark ONLY when user explicitly selects a stop (selectVersion increments)
+  useEffect(() => {
+    if (!map.current || currentLandmark < 0) return;
+    if (selectVersion <= lastSelectVersionRef.current) return;
+
+    lastSelectVersionRef.current = selectVersion;
+
+    const landmark = landmarksRef.current[currentLandmark];
+    if (!landmark) return;
+
+    const vp = landmark.viewingPoint;
+    const center = [vp?.lng || landmark.lng, vp?.lat || landmark.lat] as [number, number];
+
+    setTimeout(() => {
+      if (!map.current) return;
+      map.current.flyTo({ center, zoom: 17, duration: 800 });
+    }, 50);
+  }, [currentLandmark, selectVersion]);
+
+
   // Show route connecting all stops
   useEffect(() => {
     if (!map.current || !showRoute) return;
 
-    const addRoute = () => {
+    const addRoute = async () => {
       // Remove existing route
       if (map.current!.getLayer(routeLayerId)) {
         map.current!.removeLayer(routeLayerId);
@@ -140,26 +146,78 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         map.current!.removeSource(routeLayerId);
       }
 
-      // Build route coordinates from all landmarks (using viewingPoint)
-      const coordinates = landmarks.map(l => [l.viewingPoint?.lng || l.lng, l.viewingPoint?.lat || l.lat] as [number, number]);
+      // Build route coordinates from all landmarks (using viewingPoint and waypoints)
+      let coordinates: [number, number][] = [];
+      
+      for (let i = 0; i < landmarks.length; i++) {
+        const landmark = landmarks[i];
+        const vp = landmark.viewingPoint;
+        const point = [vp?.lng || landmark.lng, vp?.lat || landmark.lat] as [number, number];
+        
+        // Add waypoints to next stop if available
+        if (landmark.waypointsToNext && landmark.waypointsToNext.length > 0) {
+          for (const wp of landmark.waypointsToNext) {
+            coordinates.push([wp.lng, wp.lat]);
+          }
+        }
+        
+        coordinates.push(point);
+      }
 
       // Add user location if available
       if (userLocation) {
-        coordinates.unshift([userLocation.lng, userLocation.lat]);
+        coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
       }
 
-      // Create a simple straight-line route (in production, you'd use Mapbox Directions API)
-      map.current!.addSource(routeLayerId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates
-          }
+      // Get walking route from Mapbox Directions API
+      const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
+      const coordString = coordinates.map(c => c.join(',')).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordString}?geometries=geojson&access_token=${accessToken}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.routes && data.routes.length > 0) {
+          // Use the route from API
+          const routeGeometry = data.routes[0].geometry;
+
+          map.current!.addSource(routeLayerId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: routeGeometry
+            }
+          });
+        } else {
+          // Fallback to straight line if API fails
+          map.current!.addSource(routeLayerId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+              }
+            }
+          });
         }
-      });
+      } catch (e) {
+        // Fallback to straight line on error
+        map.current!.addSource(routeLayerId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordinates
+            }
+          }
+        });
+      }
 
       map.current!.addLayer({
         id: routeLayerId,
@@ -170,10 +228,9 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
           'line-cap': 'round'
         },
         paint: {
-          'line-color': '#00D47E',
-          'line-width': 3,
-          'line-opacity': 0.7,
-          'line-dasharray': [2, 1]
+          'line-color': '#8DC63F',
+          'line-width': 4,
+          'line-opacity': 0.8
         }
       });
 
@@ -189,13 +246,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       }
     };
 
-    // Wait for map style to be loaded before adding route
-    if (map.current.isStyleLoaded()) {
-      addRoute();
-    } else {
-      map.current.once('load', addRoute);
-    }
-
+    addRoute();
   }, [showRoute, landmarks, userLocation, onRouteShown]);
 
   // User location marker
