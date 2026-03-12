@@ -348,7 +348,7 @@ export default function GuidePage() {
       )}
 
       {step === 2 && (
-        <div className="flex flex-col h-[calc(100vh-120px)]">
+        <div className="flex flex-col h-[calc(100dvh-52px-48px)]">
           {/* Split View: Stops List + Map */}
           <div className="flex flex-1 overflow-hidden mx-2 mt-2 rounded-lg">
             
@@ -374,13 +374,13 @@ export default function GuidePage() {
                         key={imageIndexMap[index] ?? 0}
                         src={landmark.images[imageIndexMap[index] ?? 0]}
                         alt={landmark.name}
-                        className="w-full h-32 md:h-64 lg:h-80 object-cover transition-opacity duration-700 opacity-100"
+                        className="w-full h-44 object-cover transition-opacity duration-700 opacity-100"
                       />
                     ) : (
                       <img
                         src={landmark.image}
                         alt={landmark.name}
-                        className="w-full h-32 md:h-64 lg:h-80 object-cover"
+                        className="w-full h-44 object-cover"
                       />
                     )}
                     <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-[#8DC63F] text-black font-bold flex items-center justify-center text-sm">
