@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import ChatBot from '@/components/ChatBot';
@@ -13,98 +13,102 @@ const LANDMARKS = [
     lat: 42.69687398967523, lng: 23.321332567200447,
     viewingPoint: { lat: 42.69687398967523, lng: 23.321332567200447 },
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
-    image: 'https://images.unsplash.com/photo-1565031491318-a22927f675c4?w=400&h=300&fit=crop' 
+    image: '/images/sv-nedelya.jpg' 
   },
   { 
     name: 'Statue of Sofia', 
     lat: 42.6981069867003, lng: 23.32140915370634,
     viewingPoint: { lat: 42.6981069867003, lng: 23.32140915370634 },
     desc: 'The Statue of Sofia is an iconic monument depicting the goddess Sofia. Located near St. Sofia Church, this bronze statue symbolizes the wisdom and spirit of the city. It was unveiled in 2000.',
-    image: 'https://images.unsplash.com/photo-1574672280600-4accfa5b6f98?w=400&h=300&fit=crop' 
+    images: ['/images/statue-sofia-2.jpg', '/images/statue-sofia-1.jpg']
   },
   { 
     name: 'St. Petka of the Saddlemakers', 
     lat: 42.6978388155954, lng: 23.322143589703423,
     viewingPoint: { lat: 42.6978388155954, lng: 23.322143589703423 },
     desc: 'St. Petka of the Saddlemakers is a small medieval church built in the 14th century. It is known for its beautiful frescoes and peaceful atmosphere in the center of Sofia.',
-    image: 'https://images.unsplash.com/photo-1574672280600-4accfa5b6f98?w=400&h=300&fit=crop' 
+    image: '/images/st-petka.jpg' 
   },
   { 
     name: 'Roman Ruins', 
     lat: 42.698106336731996, lng: 23.32219595645948,
     viewingPoint: { lat: 42.698106336731996, lng: 23.32219595645948 },
     desc: 'The ancient Roman ruins of Serdica are located beneath Sofia\'s modern streets. These remains include portions of the ancient city walls, gates, and foundations from the 2nd-4th century AD.',
-    image: 'https://images.unsplash.com/photo-1548625361-ec8f121df36f?w=400&h=300&fit=crop' 
+    image: '/images/roman-ruins.jpg' 
   },
   { 
     name: 'Square of Tolerance', 
     lat: 42.69911710355462, lng: 23.322558043843497,
     viewingPoint: { lat: 42.69911710355462, lng: 23.322558043843497 },
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
-    image: 'https://images.unsplash.com/photo-1564975446207-5f6b5f7a1b8d?w=400&h=300&fit=crop' 
+    images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
   { 
     name: 'Central Public Bath', 
     lat: 42.69931093608957, lng: 23.323225163709047,
     viewingPoint: { lat: 42.69931093608957, lng: 23.323225163709047 },
+    waypointsToNext: [
+      { lat: 42.6995, lng: 23.3235 },  // Front of the bath
+      { lat: 42.7000, lng: 23.3238 },  // Government building backyard
+    ],
     desc: 'The Central Public Bath (Kamenitsa) is an historic thermal bath facility in Sofia. Built in the early 20th century, it features beautiful Neo-Byzantine architecture and is still used today.',
-    image: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&h=300&fit=crop' 
+    image: '/images/central-public-bath.jpg' 
   },
   { 
     name: 'Mineral Springs', 
     lat: 42.69994943898119, lng: 23.32411724250239,
     viewingPoint: { lat: 42.69994943898119, lng: 23.32411724250239 },
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
-    image: 'https://images.unsplash.com/photo-1605126717621-7fb98d1a80ca?w=400&h=300&fit=crop' 
+    image: '/images/mineral-springs.jpg' 
   },
   { 
     name: 'Triangle of Power', 
     lat: 42.69787428056414, lng: 23.323205770673646,
     viewingPoint: { lat: 42.69787428056414, lng: 23.323205770673646 },
     desc: 'The Triangle of Power is an area between the Presidency, the Council of Ministers, and the National Assembly. It is the administrative heart of Bulgaria.',
-    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=400&h=300&fit=crop' 
+    image: '/images/triangle-power.jpg' 
   },
   { 
     name: 'Eastern Gate', 
     lat: 42.697429594743376, lng: 23.324194814589937,
     viewingPoint: { lat: 42.697429594743376, lng: 23.324194814589937 },
     desc: 'The Eastern Gate (Serdica Gate) is an ancient Roman gate in Sofia that was part of the city walls. It dates back to the 2nd century AD and is one of the best-preserved gates.',
-    image: 'https://images.unsplash.com/photo-1568322503950-72d8a10a8e1b?w=400&h=300&fit=crop' 
+    image: '/images/eastern-gate.jpg' 
   },
   { 
     name: 'Presidency', 
     lat: 42.69685562023381, lng: 23.324083141692295,
     viewingPoint: { lat: 42.69685562023381, lng: 23.324083141692295 },
     desc: 'The Presidency of Bulgaria is located in the historic building that once served as the royal palace. It is the official office of the President of Bulgaria.',
-    image: 'https://images.unsplash.com/photo-1559631658-138a58455267?w=400&h=300&fit=crop' 
+    image: '/images/presidency.jpg' 
   },
   { 
     name: 'Rotunda St George', 
     lat: 42.69671254403954, lng: 23.323569102021896,
     viewingPoint: { lat: 42.69671254403954, lng: 23.323569102021896 },
     desc: 'This is one of the oldest buildings in Sofia, dating to the 4th century. Originally built by the Romans in the 2nd century as a pagan temple, it was later converted to a Christian church. The walls still show medieval frescoes from the 16th century.',
-    image: 'https://images.unsplash.com/photo-1559631658-138a58455267?w=400&h=300&fit=crop' 
+    image: '/images/rotunda-st-george.jpg' 
   },
   { 
     name: 'City Garden', 
     lat: 42.69549196162404, lng: 23.325096331615796,
     viewingPoint: { lat: 42.69549196162404, lng: 23.325096331615796 },
     desc: 'The oldest public park in Sofia, opened in 1878 after Bulgaria gained independence. Features the Crystal Fountain from 1916 and monuments to famous Bulgarian writers and revolutionaries.',
-    image: 'https://images.unsplash.com/photo-1591191057090-519e645c0677?w=400&h=300&fit=crop' 
+    image: '/images/city-garden.jpg' 
   },
   { 
     name: 'National Theatre Ivan Vazov', 
     lat: 42.694588129834585, lng: 23.32587165832337,
     viewingPoint: { lat: 42.694588129834585, lng: 23.32587165832337 },
     desc: 'The Ivan Vazov National Theatre is Bulgaria\'s oldest national theatre. The current building dates to 1907 and is considered one of the most beautiful buildings in Sofia.',
-    image: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&h=300&fit=crop' 
+    image: '/images/national-theatre.jpg' 
   },
   { 
     name: 'National Art Gallery', 
     lat: 42.69574675372713, lng: 23.32713888410694,
     viewingPoint: { lat: 42.69574675372713, lng: 23.32713888410694 },
     desc: 'The National Art Gallery is housed in the former royal palace. It contains over 50,000 works of Bulgarian art from the 19th and 20th centuries.',
-    image: 'https://images.unsplash.com/photo-1605126717621-7fb98d1a80ca?w=400&h=300&fit=crop' 
+    image: '/images/national-art-gallery.jpg' 
   },
   { 
     name: 'Dutch Embassy', 
@@ -118,29 +122,95 @@ const LANDMARKS = [
     lat: 42.696257593816654, lng: 23.331034772321424,
     viewingPoint: { lat: 42.696257593816654, lng: 23.331034772321424 },
     desc: 'This 6th century Byzantine church gave Sofia its name. Before being called Sofia, the city was known as Serdica. The church is famous for beautiful golden mosaics inside. It has survived many earthquakes and reconstructions over the centuries.',
-    image: 'https://images.unsplash.com/photo-1548625361-ec8f121df36f?w=400&h=300&fit=crop' 
+    image: '/images/st-sofia-church.jpg' 
   },
   { 
     name: 'St. Alexander Nevski Cathedral', 
     lat: 42.69615572588459, lng: 23.331812286161586,
     viewingPoint: { lat: 42.69615572588459, lng: 23.331812286161586 },
     desc: 'This magnificent cathedral was built in 1882 in memory of Russian Tsar Alexander II who helped free Bulgaria from Ottoman rule. It is one of the biggest Eastern Orthodox cathedrals in the world. The golden dome is 45 meters high and can be seen from across the city.',
-    image: 'https://images.unsplash.com/photo-1568322503950-72d8a10a8e1b?w=400&h=300&fit=crop' 
+    image: '/images/alexander-nevski.jpg' 
   },
 ];
 
 export default function GuidePage() {
   const [step, setStep] = useState(1);
   const [current, setCurrent] = useState(0);
+  const [selectVersion, setSelectVersion] = useState(0);
   const [chatOpen, setChatOpen] = useState(false);
   const [showRoute, setShowRoute] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [audioTime, setAudioTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [imageIndexMap, setImageIndexMap] = useState<{[key: number]: number}>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopsListRef = useRef<HTMLDivElement>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isPlayingRef = useRef(false);
+  // Stable landmarks array — prevents addRoute fitBounds from re-running on every render
+  const mapLandmarks = useMemo(() => LANDMARKS.map((l, i) => ({
+    id: i, name: l.name, lat: l.lat, lng: l.lng,
+    viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
+  })), []);
+
+  // Image slideshow: for multi-image stops, show first image for 20s then switch to next
+  useEffect(() => {
+    const landmark = LANDMARKS[current];
+    if (landmark.images && landmark.images.length > 1) {
+      setImageIndexMap(prev => ({ ...prev, [current]: 0 }));
+      const timer = setTimeout(() => {
+        setImageIndexMap(prev => ({ ...prev, [current]: 1 }));
+      }, 20000);
+      return () => clearTimeout(timer);
+    }
+  }, [current]);
+
+  // Track audio time - separate effect that runs more frequently
+  useEffect(() => {
+    if (playingIndex === null) {
+      setAudioTime(0);
+      setAudioDuration(0);
+      return;
+    }
+    
+    const interval = setInterval(() => {
+      if (currentAudioRef.current) {
+        setAudioTime(currentAudioRef.current.currentTime);
+        setAudioDuration(currentAudioRef.current.duration || 0);
+      }
+    }, 250);
+    
+    return () => clearInterval(interval);
+  }, [playingIndex]);
+
+  const stopAudio = () => {
+    isPlayingRef.current = false;
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    setPlayingIndex(null);
+    setAudioTime(0);
+    setAudioDuration(0);
+  };
+
+  const seekAudio = (seconds: number) => {
+    if (currentAudioRef.current) {
+      const newTime = Math.max(0, Math.min(currentAudioRef.current.duration || 0, currentAudioRef.current.currentTime + seconds));
+      currentAudioRef.current.currentTime = newTime;
+      setAudioTime(newTime);
+    }
+  };
 
   const playAudio = async (index: number) => {
+    // Stop any currently playing audio immediately
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    isPlayingRef.current = true;
     setLoading(true);
     setError('');
     setPlayingIndex(index);
@@ -150,17 +220,22 @@ export default function GuidePage() {
       
       // For first stop, play both intro and sv-nedelya recordings
       if (index === 0) {
-        if (audioRef.current) audioRef.current.pause();
+        if (currentAudioRef.current) currentAudioRef.current.pause();
         
         // Play intro first, then sv-nedelya
         const introAudio = new Audio('/audio/intro.m4a');
+        currentAudioRef.current = introAudio;
         introAudio.play();
         
         introAudio.onended = () => {
           const svNedelyaAudio = new Audio('/audio/sv-nedelya.m4a');
-          audioRef.current = svNedelyaAudio;
+          currentAudioRef.current = svNedelyaAudio;
           svNedelyaAudio.play();
-          svNedelyaAudio.onended = () => setPlayingIndex(null);
+          svNedelyaAudio.onended = () => {
+            setPlayingIndex(null);
+            setAudioTime(0);
+            setAudioDuration(0);
+          };
         };
         
         setLoading(false);
@@ -172,10 +247,14 @@ export default function GuidePage() {
       if (audioFile) {
         const audioRes = await fetch(`/audio/${audioFile}.m4a`);
         if (audioRes.ok) {
-          if (audioRef.current) audioRef.current.pause();
-          audioRef.current = new Audio(`/audio/${audioFile}.m4a`);
-          audioRef.current.play();
-          audioRef.current.onended = () => setPlayingIndex(null);
+          if (currentAudioRef.current) currentAudioRef.current.pause();
+          currentAudioRef.current = new Audio(`/audio/${audioFile}.m4a`);
+          currentAudioRef.current.play();
+          currentAudioRef.current.onended = () => {
+            setPlayingIndex(null);
+            setAudioTime(0);
+            setAudioDuration(0);
+          };
           setLoading(false);
           return;
         }
@@ -191,24 +270,29 @@ export default function GuidePage() {
       const data = await res.json();
       if (data.error) setError(data.error);
       else if (data.audio) {
-        if (audioRef.current) audioRef.current.pause();
-        audioRef.current = new Audio('data:audio/mpeg;base64,' + data.audio);
-        audioRef.current.play();
-        audioRef.current.onended = () => setPlayingIndex(null);
+        if (currentAudioRef.current) currentAudioRef.current.pause();
+        currentAudioRef.current = new Audio('data:audio/mpeg;base64,' + data.audio);
+        currentAudioRef.current.play();
+        currentAudioRef.current.onended = () => {
+          setPlayingIndex(null);
+          setAudioTime(0);
+          setAudioDuration(0);
+        };
       }
     } catch (e: any) { setError(e.message); } 
     finally { setLoading(false); }
   };
 
-  const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    setPlayingIndex(null);
-  };
+  // Stable callback — map marker click is always an explicit selection that should zoom
+  const handleSelectLandmark = useCallback((i: number) => {
+    stopAudio();
+    setCurrent(i);
+    setSelectVersion(v => v + 1);
+    scrollToStop(i);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const next = () => { 
+  const next = () => {
     stopAudio();
     setCurrent(c => c < LANDMARKS.length - 1 ? c + 1 : c); 
     scrollToStop(current + 1);
@@ -256,7 +340,7 @@ export default function GuidePage() {
         <div className="p-6">
           <h2 className="text-3xl font-bold mb-2">Discover Sofia</h2>
           <p className="text-[#b3b3b3] mb-8">Your personal audio guide</p>
-          <button onClick={() => setStep(2)} className="w-full bg-[#00D47E] text-black font-bold py-3 rounded-full mb-6">START</button>
+          <button onClick={() => setStep(2)} className="w-full bg-[#8DC63F] text-black font-bold py-3 rounded-full mb-6">START</button>
           <Link href="/places" className="block bg-[#282828] p-3 rounded-md text-center">Places</Link>
         </div>
       )}
@@ -272,28 +356,37 @@ export default function GuidePage() {
               className="w-1/2 overflow-y-auto pr-2"
             >
               {LANDMARKS.map((landmark, index) => (
-                <div 
+                <div
                   key={index}
-                  onClick={() => { stopAudio(); setCurrent(index); }}
+                  onClick={() => { stopAudio(); setCurrent(index); setSelectVersion(v => v + 1); }}
                   className={`mb-3 rounded-lg overflow-hidden cursor-pointer transition-all ${
                     current === index 
-                      ? 'bg-[#282828] ring-2 ring-[#00D47E]' 
+                      ? 'bg-[#282828] ring-2 ring-[#8DC63F]' 
                       : 'bg-[#1a1a1a] hover:bg-[#222]'
                   }`}
                 >
                   {/* Image with number overlay */}
-                  <div className="relative h-32">
-                    <img 
-                      src={landmark.image} 
-                      alt={landmark.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-[#00D47E] text-black font-bold flex items-center justify-center text-sm">
+                  <div className="relative">
+                    {(landmark.images && landmark.images.length > 0) ? (
+                      <img
+                        key={imageIndexMap[index] ?? 0}
+                        src={landmark.images[imageIndexMap[index] ?? 0]}
+                        alt={landmark.name}
+                        className="w-full h-32 md:h-64 lg:h-80 object-cover transition-opacity duration-700 opacity-100"
+                      />
+                    ) : (
+                      <img
+                        src={landmark.image}
+                        alt={landmark.name}
+                        className="w-full h-32 md:h-64 lg:h-80 object-cover"
+                      />
+                    )}
+                    <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-[#8DC63F] text-black font-bold flex items-center justify-center text-sm">
                       {index + 1}
                     </div>
                     {current === index && (
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <div className="w-10 h-10 rounded-full bg-[#00D47E] flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-[#8DC63F] flex items-center justify-center">
                           <span className="text-black text-lg">▶</span>
                         </div>
                       </div>
@@ -312,8 +405,11 @@ export default function GuidePage() {
                         if (playingIndex === index) {
                           stopAudio();
                         } else {
-                          setCurrent(index);
-                          scrollToStop(index);
+                          // Only change current if clicking a different stop; do NOT zoom (no selectVersion bump)
+                          if (current !== index) {
+                            setCurrent(index);
+                            scrollToStop(index);
+                          }
                           playAudio(index);
                         }
                       }}
@@ -321,7 +417,7 @@ export default function GuidePage() {
                       className={`w-full py-1.5 rounded text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
                         playingIndex === index 
                           ? 'bg-red-500 text-white' 
-                          : 'bg-[#00D47E] text-black'
+                          : 'bg-[#8DC63F] text-black'
                       }`}
                     >
                       {loading && playingIndex === index ? (
@@ -340,12 +436,14 @@ export default function GuidePage() {
             {/* Map - Right Side */}
             <div className="w-1/2 pl-2">
               <div className="rounded-lg overflow-hidden h-full">
-                <SofiaMap 
-                  landmarks={LANDMARKS.map((l, i) => ({id: i, name: l.name, lat: l.lat, lng: l.lng, viewingPoint: l.viewingPoint}))} 
-                  currentLandmark={current} 
-                  onSelectLandmark={(i) => { stopAudio(); setCurrent(i); scrollToStop(i); }} 
-                  userLocation={null} 
-                  showRoute={showRoute} 
+                <SofiaMap
+                  landmarks={mapLandmarks}
+                  currentLandmark={current}
+                  onSelectLandmark={handleSelectLandmark}
+                  userLocation={null}
+                  showRoute={showRoute}
+                  isPlaying={playingIndex !== null}
+                  selectVersion={selectVersion}
                 />
               </div>
             </div>
@@ -367,7 +465,7 @@ export default function GuidePage() {
                   setCurrent(idx); 
                   scrollToStop(idx);
                 }} 
-                className="flex-1 h-1.5 bg-[#404040] rounded accent-[#00D47E]" 
+                className="flex-1 h-1.5 bg-[#404040] rounded accent-[#8DC63F]" 
               />
               <span className="text-xs text-[#b3b3b3] w-10 text-right">{LANDMARKS.length}</span>
             </div>
@@ -393,10 +491,35 @@ export default function GuidePage() {
               <button 
                 onClick={() => playingIndex === current ? stopAudio() : playAudio(current)}
                 disabled={loading}
-                className="w-14 h-14 rounded-full bg-[#00D47E] text-black font-bold flex items-center justify-center hover:scale-105 transition-transform"
+                className="w-14 h-14 rounded-full bg-[#8DC63F] text-black font-bold flex items-center justify-center hover:scale-105 transition-transform"
               >
                 {loading ? '...' : playingIndex === current ? '⏹' : '▶'}
               </button>
+
+              {playingIndex !== null && (
+                <div className="flex items-center gap-2 mt-2 w-full max-w-xs">
+                  <span className="text-xs text-[#888]">
+                    {Math.floor(audioTime / 60)}:{(Math.floor(audioTime % 60)).toString().padStart(2, '0')}
+                  </span>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max={audioDuration || 100} 
+                    value={audioTime} 
+                    onChange={(e) => {
+                      const newTime = parseFloat(e.target.value);
+                      if (currentAudioRef.current) {
+                        currentAudioRef.current.currentTime = newTime;
+                        setAudioTime(newTime);
+                      }
+                    }}
+                    className="flex-1 h-1 bg-[#333] rounded-lg appearance-none cursor-pointer accent-[#8DC63F]"
+                  />
+                  <span className="text-xs text-[#888]">
+                    {Math.floor(audioDuration / 60)}:{(Math.floor(audioDuration % 60)).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              )}
               
               <button 
                 onClick={next} 
@@ -413,9 +536,9 @@ export default function GuidePage() {
       )}
 
       <nav className="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-[#282828] p-2 flex justify-around">
-        <Link href="/" className={step === 1 ? "flex flex-col items-center p-2 text-[#00D47E]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Home</Link>
+        <Link href="/" className={step === 1 ? "flex flex-col items-center p-2 text-[#8DC63F]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Home</Link>
         {step === 2 ? (
-          <button onClick={() => setChatOpen(!chatOpen)} className={chatOpen ? "flex flex-col items-center p-2 text-[#00D47E]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Chat</button>
+          <button onClick={() => setChatOpen(!chatOpen)} className={chatOpen ? "flex flex-col items-center p-2 text-[#8DC63F]" : "flex flex-col items-center p-2 text-[#b3b3b3]"}>Chat</button>
         ) : (
           <Link href="/places" className="flex flex-col items-center p-2 text-[#b3b3b3]">Places</Link>
         )}
