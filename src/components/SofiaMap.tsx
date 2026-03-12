@@ -9,6 +9,7 @@ type Landmark = {
   name: string;
   lat: number;
   lng: number;
+  viewingPoint?: { lat: number; lng: number };
 };
 
 type Props = {
@@ -79,15 +80,16 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         el.onclick = () => onSelectLandmark(index);
 
         const marker = new mapboxgl.Marker(el)
-          .setLngLat([landmark.lng, landmark.lat])
+          .setLngLat([landmark.viewingPoint?.lng || landmark.lng, landmark.viewingPoint?.lat || landmark.lat])
           .addTo(map.current!);
 
         markers.current.push(marker);
       });
 
       if (landmarks[currentLandmark]) {
+        const vp = landmarks[currentLandmark].viewingPoint;
         map.current!.flyTo({
-          center: [landmarks[currentLandmark].lng, landmarks[currentLandmark].lat],
+          center: [vp?.lng || landmarks[currentLandmark].lng, vp?.lat || landmarks[currentLandmark].lat],
           zoom: 14,
           duration: 1000,
         });
@@ -114,8 +116,8 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         map.current!.removeSource(routeLayerId);
       }
 
-      // Build route coordinates from all landmarks
-      const coordinates = landmarks.map(l => [l.lng, l.lat] as [number, number]);
+      // Build route coordinates from all landmarks (using viewingPoint)
+      const coordinates = landmarks.map(l => [l.viewingPoint?.lng || l.lng, l.viewingPoint?.lat || l.lat] as [number, number]);
 
       // Add user location if available
       if (userLocation) {
