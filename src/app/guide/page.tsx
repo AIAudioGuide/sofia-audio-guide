@@ -23,13 +23,6 @@ const LANDMARKS = [
     image: 'https://images.unsplash.com/photo-1568322503950-72d8a10a8e1b?w=400&h=300&fit=crop' 
   },
   { 
-    name: 'Catholic Cathedral St. Josef', 
-    lat: 42.69873778497154, lng: 23.319832014921953,
-    viewingPoint: { lat: 42.69873778497154, lng: 23.319832014921953 },
-    desc: 'St. Josef Cathedral is the main Roman Catholic cathedral in Sofia. Built in the early 20th century, it serves as the seat of the Archdiocese of Sofia and Plovdiv. The French Gothic architectural style is evident in its design.',
-    image: 'https://images.unsplash.com/photo-1559631658-138a58455267?w=400&h=300&fit=crop' 
-  },
-  { 
     name: 'St. Petka of the Saddlemakers', 
     lat: 42.6978388155954, lng: 23.322143589703423,
     viewingPoint: { lat: 42.6978388155954, lng: 23.322143589703423 },
