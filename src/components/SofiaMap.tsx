@@ -36,7 +36,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [23.3218, 42.6977],
-      zoom: 13,
+      zoom: 14,
       interactive: true,
     });
 
@@ -49,14 +49,29 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
     };
   }, []);
 
-  // Update markers
+  // Fly to current landmark when it changes
+  useEffect(() => {
+    if (!map.current) return;
+    
+    const landmark = landmarks[currentLandmark];
+    if (!landmark) return;
+
+    const vp = landmark.viewingPoint;
+    map.current.flyTo({
+      center: [vp?.lng || landmark.lng, vp?.lat || landmark.lat],
+      zoom: 16,
+      duration: 1000,
+    });
+  }, [currentLandmark, landmarks]);
+
+  // Initialize markers only once
   useEffect(() => {
     if (!map.current) return;
 
     const addMarkers = () => {
-      markers.current.forEach(m => m.remove());
-      markers.current = [];
-
+      // Don't recreate if already have markers
+      if (markers.current.length > 0) return;
+      
       landmarks.forEach((landmark, index) => {
         const el = document.createElement('div');
         el.className = 'marker';
@@ -64,17 +79,15 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          background: ${index === currentLandmark ? '#00D47E' : '#1a1a1a'};
-          border: 3px solid ${index === currentLandmark ? '#00D47E' : '#475569'};
+          background: #1a1a1a;
+          border: 3px solid #475569;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 12px;
           font-weight: bold;
-          color: ${index === currentLandmark ? '#000' : '#fff'};
-          transition: all 0.3s;
-          box-shadow: ${index === currentLandmark ? '0 0 15px rgba(0,212,126,0.6)' : 'none'};
+          color: #fff;
         `;
         el.innerHTML = String(index + 1);
         el.onclick = () => onSelectLandmark(index);
@@ -85,15 +98,6 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
 
         markers.current.push(marker);
       });
-
-      if (landmarks[currentLandmark]) {
-        const vp = landmarks[currentLandmark].viewingPoint;
-        map.current!.flyTo({
-          center: [vp?.lng || landmarks[currentLandmark].lng, vp?.lat || landmarks[currentLandmark].lat],
-          zoom: 14,
-          duration: 1000,
-        });
-      }
     };
 
     if (map.current.isStyleLoaded()) {
@@ -101,7 +105,19 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
     } else {
       map.current.once('load', addMarkers);
     }
-  }, [currentLandmark, landmarks, onSelectLandmark]);
+  }, [landmarks, onSelectLandmark]);
+
+  // Update marker styles when currentLandmark changes (without recreating)
+  useEffect(() => {
+    markers.current.forEach((marker, index) => {
+      const el = marker.getElement();
+      const isActive = index === currentLandmark;
+      el.style.background = isActive ? '#00D47E' : '#1a1a1a';
+      el.style.borderColor = isActive ? '#00D47E' : '#475569';
+      el.style.color = isActive ? '#000' : '#fff';
+      el.style.boxShadow = isActive ? '0 0 15px rgba(0,212,126,0.6)' : 'none';
+    });
+  }, [currentLandmark]);
 
   // Show route connecting all stops
   useEffect(() => {
