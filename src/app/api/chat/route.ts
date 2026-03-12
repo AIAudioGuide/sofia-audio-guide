@@ -7,16 +7,29 @@ if (!OPENAI_API_KEY) {
 }
 
 const LANDMARKS_INFO = `
-You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks:
+You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks on the tour:
 
-1. Alexander Nevsky Cathedral - Iconic gold-domed Orthodox cathedral built in 1882
-2. St. George Rotunda - 4th-century Roman church, one of Sofia's oldest buildings
-3. National Palace of Culture (NDK) - Sofia's largest conference center, built in 1981
-4. St. Sofia Church - 6th-century medieval church, gives the city its name
-5. Banya Bashi Mosque - Ottoman-era mosque, now houses National Archaeological Museum
-6. City Garden - Oldest public park in Sofia, opened in 1878
-7. Vitosha Boulevard - Main shopping street with historic cafes
-8. Tsar Osvoboditel Monument - Monument to the Russian Tsar who liberated Bulgaria
+1. Sveta Nedelya Cathedral - One of Sofia's oldest churches dating to the 10th century, located in the city center
+2. Statue of Sofia - Iconic bronze monument depicting the goddess Sofia, unveiled in 2000
+3. Catholic Cathedral St. Josef - Main Roman Catholic cathedral in Sofia, built in French Gothic style
+4. St. Petka of the Saddlemakers - 14th-century medieval church known for beautiful frescoes
+5. Roman Ruins - Ancient Serdica remains from the 2nd-4th century AD beneath Sofia's streets
+6. Square of Tolerance - Unique square where mosque, synagogue, and church stand near each other
+7. Banya Basho Mosque - Ottoman-era mosque built in 1576 by Mimar Sinan, the only functioning mosque in Sofia
+8. Sofia Synagogue - One of the largest Jewish synagogues in Europe, built in 1909
+9. Central Public Bath - Historic thermal bath facility with Neo-Byzantine architecture
+10. Mineral Springs - Natural thermal water springs that have been used for healing for centuries
+11. Triangle of Power - Administrative heart of Bulgaria between Presidency, Council of Ministers, and National Assembly
+12. Eastern Gate - Ancient Roman gate dating to the 2nd century AD, one of the best-preserved gates
+13. Presidency - Official office of the President of Bulgaria, housed in the former royal palace
+14. Rotunda St George - One of Sofia's oldest buildings, 4th-century Roman temple converted to Christian church
+15. Archaeological Museum - Houses over 650,000 artifacts from prehistoric to medieval times
+16. City Garden - Oldest public park in Sofia, opened in 1878
+17. National Theatre Ivan Vazov - Bulgaria's oldest national theatre, built in 1907
+18. National Art Gallery - Houses over 50,000 works of Bulgarian art in the former royal palace
+19. Dutch Embassy - Modern embassy architecture near Vitosha Boulevard
+20. St. Sofia Church - 6th-century Byzantine church that gave Sofia its name
+21. St. Alexander Nevski Cathedral - Iconic gold-domed Orthodox cathedral built in 1882
 `;
 
 export async function POST(request: NextRequest) {
