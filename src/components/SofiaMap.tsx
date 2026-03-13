@@ -173,8 +173,25 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
       }
 
-      // Try Mapbox Directions API
-      try {
+      // Check if any landmark has waypoints - if so, use waypoints instead of Mapbox
+      const hasWaypoints = landmarks.some(l => l.waypointsToNext && l.waypointsToNext.length > 0);
+      
+      if (hasWaypoints) {
+        // Use waypoints directly - no Mapbox routing needed
+        map.current!.addSource(routeLayerId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordinates
+            }
+          }
+        });
+      } else {
+        // Try Mapbox Directions API when no waypoints
+        try {
         const coordString = coordinates.map(c => c.join(',')).join(';');
         const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
         const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordString}?geometries=geojson&overview=full&access_token=${accessToken}`;
@@ -215,6 +232,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
             }
           }
         });
+      }
       }
 
       map.current!.addLayer({
