@@ -135,9 +135,13 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
 
   // Show route connecting all stops
   useEffect(() => {
-    if (!map.current || !showRoute) return;
+    if (!map.current || !showRoute || !landmarks.length) return;
 
     const addRoute = async () => {
+      // Wait for map to be loaded
+      if (!map.current!.isStyleLoaded()) {
+        await new Promise(resolve => map.current!.once('load', resolve));
+      }
       // Remove existing route
       if (map.current!.getLayer(routeLayerId)) {
         map.current!.removeLayer(routeLayerId);
