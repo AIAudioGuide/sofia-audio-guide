@@ -12,6 +12,9 @@ const LANDMARKS = [
     name: 'Sveta Nedelya Cathedral', 
     lat: 42.69636347909931, lng: 23.321646074642466,
     viewingPoint: { lat: 42.69636347909931, lng: 23.321646074642466 },
+    waypointsToNext: [
+      { lat: 42.6969, lng: 23.3222 },  // Right side of church
+    ],
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
     image: '/images/sv-nedelya.jpg' 
   },
