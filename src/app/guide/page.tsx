@@ -149,42 +149,35 @@ export default function GuidePage() {
 
   // Calculate straight-line distances between stops
   useEffect(() => {
-    const calculateDistances = () => {
-      const routeData: { distance: number; duration: number }[] = [];
-      let totalDist = 0;
-      let totalDur = 0;
+  // Fetch real walking routes from OSRM
+  useEffect(() => {
+    const fetchRoutes = async () => {
+      const coords = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
+      const url = `https://router.project-osrm.org/route/v1/foot/${coords}?overview=false`;
       
-      for (let i = 0; i < LANDMARKS.length - 1; i++) {
-        const from = LANDMARKS[i];
-        const to = LANDMARKS[i + 1];
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
         
-        // Haversine formula for distance in meters
-        const R = 6371000; // Earth's radius in meters
-        const lat1 = from.lat * Math.PI / 180;
-        const lat2 = to.lat * Math.PI / 180;
-        const deltaLat = (to.lat - from.lat) * Math.PI / 180;
-        const deltaLng = (to.lng - from.lng) * Math.PI / 180;
-        
-        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                  Math.cos(lat1) * Math.cos(lat2) *
-                  Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
-        
-        // Estimate walking time: 5 km/h = 83.33 m/s, so duration = distance / 83.33
-        const duration = distance / 83.33;
-        
-        routeData.push({ distance, duration });
-        totalDist += distance;
-        totalDur += duration;
+        if (data.routes && data.routes[0]) {
+          const legs = data.routes[0].legs;
+          const routeData = legs.map((leg: any) => ({
+            distance: leg.distance,
+            duration: leg.duration
+          }));
+          setRouteInfo(routeData);
+          
+          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance, 0);
+          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration, 0);
+          setTotalWalkingDistance(totalDist);
+          setTotalWalkingTime(totalDur);
+        }
+      } catch (e) {
+        console.error('Failed to fetch routes:', e);
       }
-      
-      setRouteInfo(routeData);
-      setTotalWalkingDistance(totalDist);
-      setTotalWalkingTime(totalDur);
     };
     
-    calculateDistances();
+    fetchRoutes();
   }, []);
 
   // Image slideshow: for multi-image stops, show first image for 20s then switch to next
