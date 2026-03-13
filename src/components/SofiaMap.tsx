@@ -13,6 +13,45 @@ type Landmark = {
   waypointsToNext?: { lat: number; lng: number }[];
 };
 
+// Decode Google polyline to coordinates
+function decodePolyline(encoded: string): [number, number][] {
+  const poly: [number, number][] = [];
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
+  
+  while (index < encoded.length) {
+    let b: number;
+    let shift = 0;
+    let result = 0;
+    
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    
+    const dlat = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
+    lat += dlat;
+    
+    shift = 0;
+    result = 0;
+    
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    
+    const dlng = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
+    lng += dlng;
+    
+    poly.push([lng / 1e5, lat / 1e5]);
+  }
+  
+  return poly;
+}
+
 type Props = {
   landmarks: Landmark[];
   currentLandmark: number;
@@ -190,49 +229,48 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
           }
         });
       } else {
-        // Try Mapbox Directions API when no waypoints
+        // Try Google Directions API when no waypoints
         try {
-        const coordString = coordinates.map(c => c.join(',')).join(';');
-        const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
-        const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordString}?geometries=geojson&overview=full&access_token=${accessToken}`;
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.routes && data.routes[0]) {
-            map.current!.addSource(routeLayerId, {
-              type: 'geojson',
-              data: {
-                type: 'Feature',
-                properties: {},
-                geometry: data.routes[0].geometry
-              }
-            });
-          } else {
-            throw new Error('No route');
-          }
-        } else {
-          throw new Error('Mapbox failed');
-        }
-      } catch (e) {
-        // Fallback to straight lines
-        map.current!.addSource(routeLayerId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: coordinates
+          const coordString = coordinates.map(c => `${c[1]},${c[0]}`).join('|');
+          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_DIRECTIONS_API_KEY || '';
+          const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${coordString}&mode=walking&key=${apiKey}`;
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          
+          const response = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.routes && data.routes[0] && data.routes[0].overview_polyline) {
+              const encoded = data.routes[0].overview_polyline.points;
+              const decoded = decodePolyline(encoded);
+              map.current!.addSource(routeLayerId, {
+                type: 'geojson',
+                data: {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: { type: 'LineString', coordinates: decoded }
+                }
+              });
+            } else {
+              throw new Error('No route');
             }
+          } else {
+            throw new Error('Google failed');
           }
-        });
-      }
+        } catch (e) {
+          // Fallback to straight lines
+          map.current!.addSource(routeLayerId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: { type: 'LineString', coordinates }
+            }
+          });
+        }
       }
 
       map.current!.addLayer({

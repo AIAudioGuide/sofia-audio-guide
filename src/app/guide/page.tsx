@@ -159,11 +159,11 @@ export default function GuidePage() {
     viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
   })), []);
 
-  // Fetch real walking distances from Mapbox
+  // Fetch real walking distances from Google
   useEffect(() => {
     const fetchDistances = async () => {
-      const coords = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coords}?overview=false&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
+      const coords = LANDMARKS.map(l => `${l.lat},${l.lng}`).join('|');
+      const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${coords}&mode=walking&key=${process.env.NEXT_PUBLIC_GOOGLE_DIRECTIONS_API_KEY}`;
       
       try {
         const res = await fetch(url);
@@ -172,13 +172,13 @@ export default function GuidePage() {
         if (data.routes && data.routes[0]) {
           const legs = data.routes[0].legs;
           const routeData = legs.map((leg: any) => ({
-            distance: leg.distance,
-            duration: leg.duration
+            distance: leg.distance.value,
+            duration: leg.duration.value
           }));
           setRouteInfo(routeData);
           
-          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance, 0);
-          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration, 0);
+          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance.value, 0);
+          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration.value, 0);
           setTotalWalkingDistance(totalDist);
           setTotalWalkingTime(totalDur);
         }
