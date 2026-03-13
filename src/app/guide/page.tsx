@@ -138,6 +138,9 @@ export default function GuidePage() {
   const [audioTime, setAudioTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [imageIndexMap, setImageIndexMap] = useState<{[key: number]: number}>({});
+  const [routeInfo, setRouteInfo] = useState<{distance: number; duration: number}[]>([]);
+  const [totalWalkingDistance, setTotalWalkingDistance] = useState(0);
+  const [totalWalkingTime, setTotalWalkingTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopsListRef = useRef<HTMLDivElement>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -147,6 +150,38 @@ export default function GuidePage() {
     id: i, name: l.name, lat: l.lat, lng: l.lng,
     viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
   })), []);
+
+  // Fetch real walking route from Mapbox
+  useEffect(() => {
+    const fetchRoute = async () => {
+      const coordinates = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinates}?overview=full&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
+      
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.routes && data.routes[0]) {
+          const legs = data.routes[0].legs;
+          const routeData = legs.map((leg: any) => ({
+            distance: leg.distance, // meters
+            duration: leg.duration  // seconds
+          }));
+          setRouteInfo(routeData);
+          
+          // Calculate totals
+          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance, 0);
+          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration, 0);
+          setTotalWalkingDistance(totalDist);
+          setTotalWalkingTime(totalDur);
+        }
+      } catch (e) {
+        console.error('Failed to fetch route:', e);
+      }
+    };
+    
+    fetchRoute();
+  }, []);
 
   // Image slideshow: for multi-image stops, show first image for 20s then switch to next
   useEffect(() => {
@@ -308,18 +343,23 @@ export default function GuidePage() {
     }
   };
 
-  // Calculate total distance
-  const calculateTotalDistance = () => {
-    let total = 0;
-    for (let i = 0; i < LANDMARKS.length - 1; i++) {
-      const from = LANDMARKS[i];
-      const to = LANDMARKS[i + 1];
-      const dist = Math.sqrt(
-        Math.pow(to.lat - from.lat, 2) + Math.pow(to.lng - from.lng, 2)
-      ) * 111; // rough km conversion
-      total += dist;
+  // Format distance for display
+  const formatDistance = (meters: number) => {
+    if (meters >= 1000) {
+      return (meters / 1000).toFixed(1) + ' km';
     }
-    return total.toFixed(1);
+    return Math.round(meters) + ' m';
+  };
+
+  // Format duration for display
+  const formatDuration = (seconds: number) => {
+    const mins = Math.round(seconds / 60);
+    if (mins >= 60) {
+      const hours = Math.floor(mins / 60);
+      const remainingMins = mins % 60;
+      return hours + 'h ' + remainingMins + 'm';
+    }
+    return mins + ' min';
   };
 
   return (
@@ -327,7 +367,7 @@ export default function GuidePage() {
       <header className="p-3 flex justify-between items-center border-b border-[#282828]">
         <h1 className="text-lg font-bold">Sofia Guide</h1>
         <div className="text-sm text-[#b3b3b3]">
-          {LANDMARKS.length} stops • {calculateTotalDistance()} km
+          {LANDMARKS.length} stops • {totalWalkingDistance > 0 ? formatDistance(totalWalkingDistance) + ' • ' + formatDuration(totalWalkingTime) : 'Loading...'}
         </div>
       </header>
 
@@ -461,6 +501,11 @@ export default function GuidePage() {
             {/* Current stop info */}
             <div className="text-center mb-3">
               <h3 className="font-bold">{LANDMARKS[current].name}</h3>
+              {current < LANDMARKS.length - 1 && routeInfo[current] && (
+                <p className="text-xs text-[#8DC63F] mt-1">
+                  → {formatDistance(routeInfo[current].distance)} to next stop ({formatDuration(routeInfo[current].duration)})
+                </p>
+              )}
               {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
             </div>
             
