@@ -150,47 +150,44 @@ export default function GuidePage() {
     viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
   })), []);
 
-  // Fetch real walking route from Mapbox
+  // Calculate straight-line distances between stops
   useEffect(() => {
-    const fetchRoute = async () => {
-      // Build coordinates array with waypoints between each stop
-      const allCoords: string[] = [];
-      for (let i = 0; i < LANDMARKS.length; i++) {
-        allCoords.push(`${LANDMARKS[i].lng},${LANDMARKS[i].lat}`);
-        // Add waypoints to next stop if they exist
-        if (LANDMARKS[i].waypointsToNext) {
-          for (const wp of LANDMARKS[i].waypointsToNext) {
-            allCoords.push(`${wp.lng},${wp.lat}`);
-          }
-        }
-      }
-      const coordinates = allCoords.join(';');
-      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinates}?overview=full&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
+    const calculateDistances = () => {
+      const routeData: { distance: number; duration: number }[] = [];
+      let totalDist = 0;
+      let totalDur = 0;
       
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
+      for (let i = 0; i < LANDMARKS.length - 1; i++) {
+        const from = LANDMARKS[i];
+        const to = LANDMARKS[i + 1];
         
-        if (data.routes && data.routes[0]) {
-          const legs = data.routes[0].legs;
-          const routeData = legs.map((leg: any) => ({
-            distance: leg.distance, // meters
-            duration: leg.duration  // seconds
-          }));
-          setRouteInfo(routeData);
-          
-          // Calculate totals
-          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance, 0);
-          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration, 0);
-          setTotalWalkingDistance(totalDist);
-          setTotalWalkingTime(totalDur);
-        }
-      } catch (e) {
-        console.error('Failed to fetch route:', e);
+        // Haversine formula for distance in meters
+        const R = 6371000; // Earth's radius in meters
+        const lat1 = from.lat * Math.PI / 180;
+        const lat2 = to.lat * Math.PI / 180;
+        const deltaLat = (to.lat - from.lat) * Math.PI / 180;
+        const deltaLng = (to.lng - from.lng) * Math.PI / 180;
+        
+        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                  Math.cos(lat1) * Math.cos(lat2) *
+                  Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        
+        // Estimate walking time: 5 km/h = 83.33 m/s, so duration = distance / 83.33
+        const duration = distance / 83.33;
+        
+        routeData.push({ distance, duration });
+        totalDist += distance;
+        totalDur += duration;
       }
+      
+      setRouteInfo(routeData);
+      setTotalWalkingDistance(totalDist);
+      setTotalWalkingTime(totalDur);
     };
     
-    fetchRoute();
+    calculateDistances();
   }, []);
 
   // Image slideshow: for multi-image stops, show first image for 20s then switch to next
