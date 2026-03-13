@@ -17,8 +17,8 @@ const LANDMARKS = [
   },
   { 
     name: 'Statue of Sofia', 
-    lat: 42.6981069867003, lng: 23.32140915370634,
-    viewingPoint: { lat: 42.6981069867003, lng: 23.32140915370634 },
+    lat: 42.69756052260627, lng: 23.32193081941887,
+    viewingPoint: { lat: 42.69756052260627, lng: 23.32193081941887 },
     desc: 'The Statue of Sofia is an iconic monument depicting the goddess Sofia. Located near St. Sofia Church, this bronze statue symbolizes the wisdom and spirit of the city. It was unveiled in 2000.',
     images: ['/images/statue-sofia-2.jpg', '/images/statue-sofia-1.jpg']
   },
@@ -109,13 +109,6 @@ const LANDMARKS = [
     viewingPoint: { lat: 42.69574675372713, lng: 23.32713888410694 },
     desc: 'The National Art Gallery is housed in the former royal palace. It contains over 50,000 works of Bulgarian art from the 19th and 20th centuries.',
     image: '/images/national-art-gallery.jpg' 
-  },
-  { 
-    name: 'Dutch Embassy', 
-    lat: 42.69643021116868, lng: 23.32903386688521,
-    viewingPoint: { lat: 42.69643021116868, lng: 23.32903386688521 },
-    desc: 'The Dutch Embassy building is an example of modern embassy architecture in Sofia. It is located near Vitosha Boulevard.',
-    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=400&h=300&fit=crop' 
   },
   { 
     name: 'St. Sofia Church', 
