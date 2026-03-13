@@ -40,9 +40,6 @@ const LANDMARKS = [
     name: 'Square of Tolerance', 
     lat: 42.698976854779225, lng: 23.322591427324415,
     viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
-    waypointsToNext: [
-      { lat: 42.6992, lng: 23.3229 },  // Direct northeast toward the bath
-    ],
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
@@ -50,10 +47,6 @@ const LANDMARKS = [
     name: 'Central Public Bath', 
     lat: 42.699339370688044, lng: 23.323233585881997,
     viewingPoint: { lat: 42.699339370688044, lng: 23.323233585881997 },
-    waypointsToNext: [
-      { lat: 42.6995, lng: 23.3235 },  // Front of the bath
-      { lat: 42.7000, lng: 23.3238 },  // Government building backyard
-    ],
     desc: 'The Central Public Bath (Kamenitsa) is an historic thermal bath facility in Sofia. Built in the early 20th century, it features beautiful Neo-Byzantine architecture and is still used today.',
     image: '/images/central-public-bath.jpg' 
   },
@@ -61,10 +54,6 @@ const LANDMARKS = [
     name: 'Mineral Springs',
     lat: 42.699932703728685, lng: 23.324078481733565,
     viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
-    waypointsToNext: [
-      { lat: 42.6994, lng: 23.3236 },  // Southwest along path beside the bath
-      { lat: 42.6984, lng: 23.3231 },  // South on Exarch Yosif St toward Triangle
-    ],
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
     image: '/images/mineral-springs.jpg'
   },
