@@ -58,6 +58,14 @@ const LANDMARKS = [
     name: 'Mineral Springs',
     lat: 42.699932703728685, lng: 23.324078481733565,
     viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
+    waypointsToNext: [
+      { lat: 42.69986063000638, lng: 23.323943691890218 },
+      { lat: 42.699941633031685, lng: 23.323698018970273 },
+      { lat: 42.69987526911516, lng: 23.323646228462824 },
+      { lat: 42.69901448364058, lng: 23.323339469288133 },
+      { lat: 42.69894031108613, lng: 23.32325182379842 },
+      { lat: 42.69795166061938, lng: 23.32302739826193 },
+    ],
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
     image: '/images/mineral-springs.jpg'
   },
