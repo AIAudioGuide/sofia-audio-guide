@@ -12,6 +12,10 @@ const LANDMARKS = [
     name: 'Sveta Nedelya Cathedral', 
     lat: 42.69636347909931, lng: 23.321646074642466,
     viewingPoint: { lat: 42.69636347909931, lng: 23.321646074642466 },
+    waypointsToNext: [
+      { lat: 42.6968, lng: 23.3219 },  // Walk toward center
+      { lat: 42.6972, lng: 23.3219 },  // Near the square
+    ],
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
     image: '/images/sv-nedelya.jpg' 
   },
@@ -40,6 +44,10 @@ const LANDMARKS = [
     name: 'Square of Tolerance', 
     lat: 42.698976854779225, lng: 23.322591427324415,
     viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
+    waypointsToNext: [
+      { lat: 42.6991, lng: 23.3228 },  // Through the square
+      { lat: 42.6992, lng: 23.3230 },  // Along the street
+    ],
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
@@ -154,7 +162,18 @@ export default function GuidePage() {
   // Fetch real walking route from Mapbox
   useEffect(() => {
     const fetchRoute = async () => {
-      const coordinates = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
+      // Build coordinates array with waypoints between each stop
+      const allCoords: string[] = [];
+      for (let i = 0; i < LANDMARKS.length; i++) {
+        allCoords.push(`${LANDMARKS[i].lng},${LANDMARKS[i].lat}`);
+        // Add waypoints to next stop if they exist
+        if (LANDMARKS[i].waypointsToNext) {
+          for (const wp of LANDMARKS[i].waypointsToNext) {
+            allCoords.push(`${wp.lng},${wp.lat}`);
+          }
+        }
+      }
+      const coordinates = allCoords.join(';');
       const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinates}?overview=full&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
       
       try {
