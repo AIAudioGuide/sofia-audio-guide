@@ -151,37 +151,35 @@ export default function GuidePage() {
     viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
   })), []);
 
-  // Calculate distances between stops
+  // Fetch real walking distances from Mapbox
   useEffect(() => {
-    const routeData: { distance: number; duration: number }[] = [];
-    let totalDist = 0;
-    let totalDur = 0;
+    const fetchDistances = async () => {
+      const coords = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coords}?overview=false&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`;
+      
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.routes && data.routes[0]) {
+          const legs = data.routes[0].legs;
+          const routeData = legs.map((leg: any) => ({
+            distance: leg.distance,
+            duration: leg.duration
+          }));
+          setRouteInfo(routeData);
+          
+          const totalDist = legs.reduce((sum: number, leg: any) => sum + leg.distance, 0);
+          const totalDur = legs.reduce((sum: number, leg: any) => sum + leg.duration, 0);
+          setTotalWalkingDistance(totalDist);
+          setTotalWalkingTime(totalDur);
+        }
+      } catch (e) {
+        console.error('Failed to fetch distances:', e);
+      }
+    };
     
-    for (let i = 0; i < LANDMARKS.length - 1; i++) {
-      const from = LANDMARKS[i];
-      const to = LANDMARKS[i + 1];
-      
-      // Haversine formula
-      const R = 6371000;
-      const lat1 = from.lat * Math.PI / 180;
-      const lat2 = to.lat * Math.PI / 180;
-      const dLat = (to.lat - from.lat) * Math.PI / 180;
-      const dLng = (to.lng - from.lng) * Math.PI / 180;
-      
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1) * Math.cos(lat2) *
-                Math.sin(dLng/2) * Math.sin(dLng/2);
-      const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      const duration = distance / 83.33;
-      
-      routeData.push({ distance, duration });
-      totalDist += distance;
-      totalDur += duration;
-    }
-    
-    setRouteInfo(routeData);
-    setTotalWalkingDistance(totalDist);
-    setTotalWalkingTime(totalDur);
+    fetchDistances();
   }, []);
 
   // Image slideshow: for multi-image stops, show first image for 20s then switch to next

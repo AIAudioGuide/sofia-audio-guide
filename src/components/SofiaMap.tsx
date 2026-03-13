@@ -173,18 +173,49 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
       }
 
-      // Use straight lines
-      map.current!.addSource(routeLayerId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates
+      // Try Mapbox Directions API
+      try {
+        const coordString = coordinates.map(c => c.join(',')).join(';');
+        const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
+        const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordString}?geometries=geojson&overview=full&access_token=${accessToken}`;
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.routes && data.routes[0]) {
+            map.current!.addSource(routeLayerId, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: data.routes[0].geometry
+              }
+            });
+          } else {
+            throw new Error('No route');
           }
+        } else {
+          throw new Error('Mapbox failed');
         }
-      });
+      } catch (e) {
+        // Fallback to straight lines
+        map.current!.addSource(routeLayerId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordinates
+            }
+          }
+        });
+      }
 
       map.current!.addLayer({
         id: routeLayerId,
