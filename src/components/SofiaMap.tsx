@@ -192,9 +192,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         },
         paint: {
           'line-color': '#8DC63F',
-          'line-width': 4,
-          'line-opacity': 0.8,
-          'line-dasharray': [2, 2]
+          'line-width': 5
         }
       });
 
