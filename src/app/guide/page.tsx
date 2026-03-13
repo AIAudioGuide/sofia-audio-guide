@@ -10,7 +10,7 @@ const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { ssr: false });
 const LANDMARKS = [
   { 
     name: 'Sveta Nedelya Cathedral', 
-    lat: 42.69704965153238, lng: 23.32192513820163,
+    lat: 42.69636347909931, lng: 23.321646074642466,
     viewingPoint: { lat: 42.69636347909931, lng: 23.321646074642466 },
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
     image: '/images/sv-nedelya.jpg' 
@@ -40,10 +40,6 @@ const LANDMARKS = [
     name: 'Square of Tolerance', 
     lat: 42.698976854779225, lng: 23.322591427324415,
     viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
-    waypointsToNext: [
-      { lat: 42.69921455389012, lng: 23.322589170873083 },
-      { lat: 42.699319956493035, lng: 23.322808284558437 },
-    ],
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
@@ -58,14 +54,6 @@ const LANDMARKS = [
     name: 'Mineral Springs',
     lat: 42.699932703728685, lng: 23.324078481733565,
     viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
-    waypointsToNext: [
-      { lat: 42.69986063000638, lng: 23.323943691890218 },
-      { lat: 42.699941633031685, lng: 23.323698018970273 },
-      { lat: 42.69987526911516, lng: 23.323646228462824 },
-      { lat: 42.69901448364058, lng: 23.323339469288133 },
-      { lat: 42.69894031108613, lng: 23.32325182379842 },
-      { lat: 42.69795166061938, lng: 23.32302739826193 },
-    ],
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
     image: '/images/mineral-springs.jpg'
   },
