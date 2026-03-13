@@ -10,8 +10,8 @@ const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { ssr: false });
 const LANDMARKS = [
   { 
     name: 'Sveta Nedelya Cathedral', 
-    lat: 42.69687398967523, lng: 23.321332567200447,
-    viewingPoint: { lat: 42.69687398967523, lng: 23.321332567200447 },
+    lat: 42.69636347909931, lng: 23.321646074642466,
+    viewingPoint: { lat: 42.69636347909931, lng: 23.321646074642466 },
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
     image: '/images/sv-nedelya.jpg' 
   },
@@ -24,29 +24,29 @@ const LANDMARKS = [
   },
   { 
     name: 'St. Petka of the Saddlemakers', 
-    lat: 42.6978388155954, lng: 23.322143589703423,
-    viewingPoint: { lat: 42.6978388155954, lng: 23.322143589703423 },
+    lat: 42.69782671516099, lng: 23.321971822670115,
+    viewingPoint: { lat: 42.69782671516099, lng: 23.321971822670115 },
     desc: 'St. Petka of the Saddlemakers is a small medieval church built in the 14th century. It is known for its beautiful frescoes and peaceful atmosphere in the center of Sofia.',
     image: '/images/st-petka.jpg' 
   },
   { 
     name: 'Roman Ruins', 
-    lat: 42.698106336731996, lng: 23.32219595645948,
-    viewingPoint: { lat: 42.698106336731996, lng: 23.32219595645948 },
+    lat: 42.69808788410564, lng: 23.322115334036553,
+    viewingPoint: { lat: 42.69808788410564, lng: 23.322115334036553 },
     desc: 'The ancient Roman ruins of Serdica are located beneath Sofia\'s modern streets. These remains include portions of the ancient city walls, gates, and foundations from the 2nd-4th century AD.',
     image: '/images/roman-ruins.jpg' 
   },
   { 
     name: 'Square of Tolerance', 
-    lat: 42.69911710355462, lng: 23.322558043843497,
-    viewingPoint: { lat: 42.69911710355462, lng: 23.322558043843497 },
+    lat: 42.698976854779225, lng: 23.322591427324415,
+    viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
   { 
     name: 'Central Public Bath', 
-    lat: 42.69931093608957, lng: 23.323225163709047,
-    viewingPoint: { lat: 42.69931093608957, lng: 23.323225163709047 },
+    lat: 42.699339370688044, lng: 23.323233585881997,
+    viewingPoint: { lat: 42.699339370688044, lng: 23.323233585881997 },
     waypointsToNext: [
       { lat: 42.6995, lng: 23.3235 },  // Front of the bath
       { lat: 42.7000, lng: 23.3238 },  // Government building backyard
@@ -56,71 +56,71 @@ const LANDMARKS = [
   },
   { 
     name: 'Mineral Springs', 
-    lat: 42.69994943898119, lng: 23.32411724250239,
-    viewingPoint: { lat: 42.69994943898119, lng: 23.32411724250239 },
+    lat: 42.699932703728685, lng: 23.324078481733565,
+    viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
     image: '/images/mineral-springs.jpg' 
   },
   { 
     name: 'Triangle of Power', 
-    lat: 42.69787428056414, lng: 23.323205770673646,
-    viewingPoint: { lat: 42.69787428056414, lng: 23.323205770673646 },
+    lat: 42.69784662590975, lng: 23.323217549685875,
+    viewingPoint: { lat: 42.69784662590975, lng: 23.323217549685875 },
     desc: 'The Triangle of Power is an area between the Presidency, the Council of Ministers, and the National Assembly. It is the administrative heart of Bulgaria.',
     image: '/images/triangle-power.jpg' 
   },
   { 
     name: 'Eastern Gate', 
-    lat: 42.697429594743376, lng: 23.324194814589937,
-    viewingPoint: { lat: 42.697429594743376, lng: 23.324194814589937 },
+    lat: 42.69769878101138, lng: 23.324164369455954,
+    viewingPoint: { lat: 42.69769878101138, lng: 23.324164369455954 },
     desc: 'The Eastern Gate (Serdica Gate) is an ancient Roman gate in Sofia that was part of the city walls. It dates back to the 2nd century AD and is one of the best-preserved gates.',
     image: '/images/eastern-gate.jpg' 
   },
   { 
     name: 'Presidency', 
-    lat: 42.69685562023381, lng: 23.324083141692295,
-    viewingPoint: { lat: 42.69685562023381, lng: 23.324083141692295 },
+    lat: 42.69682238073038, lng: 23.32411115504127,
+    viewingPoint: { lat: 42.69682238073038, lng: 23.32411115504127 },
     desc: 'The Presidency of Bulgaria is located in the historic building that once served as the royal palace. It is the official office of the President of Bulgaria.',
     image: '/images/presidency.jpg' 
   },
   { 
     name: 'Rotunda St George', 
-    lat: 42.69671254403954, lng: 23.323569102021896,
-    viewingPoint: { lat: 42.69671254403954, lng: 23.323569102021896 },
+    lat: 42.69670312745949, lng: 23.323572973279408,
+    viewingPoint: { lat: 42.69670312745949, lng: 23.323572973279408 },
     desc: 'This is one of the oldest buildings in Sofia, dating to the 4th century. Originally built by the Romans in the 2nd century as a pagan temple, it was later converted to a Christian church. The walls still show medieval frescoes from the 16th century.',
     image: '/images/rotunda-st-george.jpg' 
   },
   { 
     name: 'City Garden', 
-    lat: 42.69549196162404, lng: 23.325096331615796,
-    viewingPoint: { lat: 42.69549196162404, lng: 23.325096331615796 },
+    lat: 42.69546885661283, lng: 23.325069655129518,
+    viewingPoint: { lat: 42.69546885661283, lng: 23.325069655129518 },
     desc: 'The oldest public park in Sofia, opened in 1878 after Bulgaria gained independence. Features the Crystal Fountain from 1916 and monuments to famous Bulgarian writers and revolutionaries.',
     image: '/images/city-garden.jpg' 
   },
   { 
     name: 'National Theatre Ivan Vazov', 
-    lat: 42.694588129834585, lng: 23.32587165832337,
-    viewingPoint: { lat: 42.694588129834585, lng: 23.32587165832337 },
+    lat: 42.69470518828565, lng: 23.325643995581537,
+    viewingPoint: { lat: 42.69470518828565, lng: 23.325643995581537 },
     desc: 'The Ivan Vazov National Theatre is Bulgaria\'s oldest national theatre. The current building dates to 1907 and is considered one of the most beautiful buildings in Sofia.',
     image: '/images/national-theatre.jpg' 
   },
   { 
     name: 'National Art Gallery', 
-    lat: 42.69574675372713, lng: 23.32713888410694,
-    viewingPoint: { lat: 42.69574675372713, lng: 23.32713888410694 },
+    lat: 42.695816585768064, lng: 23.326975133144987,
+    viewingPoint: { lat: 42.695816585768064, lng: 23.326975133144987 },
     desc: 'The National Art Gallery is housed in the former royal palace. It contains over 50,000 works of Bulgarian art from the 19th and 20th centuries.',
     image: '/images/national-art-gallery.jpg' 
   },
   { 
     name: 'St. Sofia Church', 
-    lat: 42.696257593816654, lng: 23.331034772321424,
-    viewingPoint: { lat: 42.696257593816654, lng: 23.331034772321424 },
+    lat: 42.69630350171713, lng: 23.330998446655048,
+    viewingPoint: { lat: 42.69630350171713, lng: 23.330998446655048 },
     desc: 'This 6th century Byzantine church gave Sofia its name. Before being called Sofia, the city was known as Serdica. The church is famous for beautiful golden mosaics inside. It has survived many earthquakes and reconstructions over the centuries.',
     image: '/images/st-sofia-church.jpg' 
   },
   { 
     name: 'St. Alexander Nevski Cathedral', 
-    lat: 42.69615572588459, lng: 23.331812286161586,
-    viewingPoint: { lat: 42.69615572588459, lng: 23.331812286161586 },
+    lat: 42.696077239187964, lng: 23.33183063486182,
+    viewingPoint: { lat: 42.696077239187964, lng: 23.33183063486182 },
     desc: 'This magnificent cathedral was built in 1882 in memory of Russian Tsar Alexander II who helped free Bulgaria from Ottoman rule. It is one of the biggest Eastern Orthodox cathedrals in the world. The golden dome is 45 meters high and can be seen from across the city.',
     image: '/images/alexander-nevski.jpg' 
   },
