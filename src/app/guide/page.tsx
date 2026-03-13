@@ -13,8 +13,8 @@ const LANDMARKS = [
     lat: 42.69636347909931, lng: 23.321646074642466,
     viewingPoint: { lat: 42.69636347909931, lng: 23.321646074642466 },
     waypointsToNext: [
-      { lat: 42.6968, lng: 23.3219 },  // Walk toward center
-      { lat: 42.6972, lng: 23.3219 },  // Near the square
+      { lat: 42.6967, lng: 23.3217 },  // Pedestrian path north through the square
+      { lat: 42.6972, lng: 23.3218 },  // Continue north, slight east drift
     ],
     desc: 'Sveta Nedelya Cathedral is one of Sofia\'s oldest churches, dating back to the 10th century. It is an Eastern Orthodox cathedral located in the heart of the city. The current building was constructed in the 19th century and features a distinctive bell tower.',
     image: '/images/sv-nedelya.jpg' 
@@ -45,8 +45,7 @@ const LANDMARKS = [
     lat: 42.698976854779225, lng: 23.322591427324415,
     viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
     waypointsToNext: [
-      { lat: 42.6991, lng: 23.3228 },  // Through the square
-      { lat: 42.6992, lng: 23.3230 },  // Along the street
+      { lat: 42.6992, lng: 23.3229 },  // Direct northeast toward the bath
     ],
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
@@ -63,11 +62,15 @@ const LANDMARKS = [
     image: '/images/central-public-bath.jpg' 
   },
   { 
-    name: 'Mineral Springs', 
+    name: 'Mineral Springs',
     lat: 42.699932703728685, lng: 23.324078481733565,
     viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
+    waypointsToNext: [
+      { lat: 42.6994, lng: 23.3236 },  // Southwest along path beside the bath
+      { lat: 42.6984, lng: 23.3231 },  // South on Exarch Yosif St toward Triangle
+    ],
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
-    image: '/images/mineral-springs.jpg' 
+    image: '/images/mineral-springs.jpg'
   },
   { 
     name: 'Triangle of Power', 
