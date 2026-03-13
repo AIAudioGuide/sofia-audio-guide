@@ -149,8 +149,6 @@ export default function GuidePage() {
 
   // Calculate straight-line distances between stops
   useEffect(() => {
-  // Fetch real walking routes from OSRM
-  useEffect(() => {
     const fetchRoutes = async () => {
       const coords = LANDMARKS.map(l => `${l.lng},${l.lat}`).join(';');
       const url = `https://router.project-osrm.org/route/v1/foot/${coords}?overview=false`;
