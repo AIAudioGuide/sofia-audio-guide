@@ -169,52 +169,18 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
       }
 
-      // Use OSRM for routing (better for Sofia than Mapbox)
-      const coordString = coordinates.map(c => c.join(',')).join(';');
-      const osrmUrl = `https://router.project-osrm.org/route/v1/foot/${coordString}?overview=full&geometries=geojson`;
-
-      try {
-        const response = await fetch(osrmUrl);
-        const data = await response.json();
-
-        if (data.routes && data.routes.length > 0) {
-          const routeGeometry = data.routes[0].geometry;
-          map.current!.addSource(routeLayerId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: routeGeometry
-            }
-          });
-        } else {
-          // Fallback to straight line
-          map.current!.addSource(routeLayerId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'LineString',
-                coordinates: coordinates
-              }
-            }
-          });
-        }
-      } catch (e) {
-        // Fallback to straight line on error
-        map.current!.addSource(routeLayerId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: coordinates
-            }
+      // Use straight lines (OSRM routing had issues)
+      map.current!.addSource(routeLayerId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: coordinates
           }
-        });
-      }
+        }
+      });
 
       map.current!.addLayer({
         id: routeLayerId,
