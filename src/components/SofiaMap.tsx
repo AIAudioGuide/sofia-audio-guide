@@ -173,18 +173,48 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
       }
 
-      // Use straight lines (OSRM routing had issues)
-      map.current!.addSource(routeLayerId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: coordinates
+      // Try OSRM routing first, fallback to straight lines
+      try {
+        const coordString = coordinates.map(c => c.join(',')).join(';');
+        const osrmUrl = `https://router.project-osrm.org/route/v1/foot/${coordString}?overview=full&geometries=geojson&steps=false`;
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
+        const response = await fetch(osrmUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.routes && data.routes[0]) {
+            map.current!.addSource(routeLayerId, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: data.routes[0].geometry
+              }
+            });
+          } else {
+            throw new Error('No OSRM route');
           }
+        } else {
+          throw new Error('OSRM failed');
         }
-      });
+      } catch (e) {
+        // Fallback to straight lines
+        map.current!.addSource(routeLayerId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coordinates
+            }
+          }
+        });
+      }
 
       map.current!.addLayer({
         id: routeLayerId,
