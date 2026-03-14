@@ -225,6 +225,15 @@ export default function GuidePage() {
   }, [current]);
 
   // Track audio time - separate effect that runs more frequently
+  // Backup trigger: if last stop audio stops playing (naturally or via onended), show completion
+  const prevPlayingIndex = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevPlayingIndex.current === LANDMARKS.length - 1 && playingIndex === null) {
+      setTourFinished(true);
+    }
+    prevPlayingIndex.current = playingIndex;
+  }, [playingIndex]);
+
   useEffect(() => {
     if (playingIndex === null) {
       setAudioTime(0);
@@ -588,10 +597,9 @@ export default function GuidePage() {
               {current === LANDMARKS.length - 1 ? (
                 <button
                   onClick={() => setTourFinished(true)}
-                  className="text-[#8DC63F] hover:text-[#7ab535] font-bold text-sm transition-colors opacity-60 hover:opacity-100"
-                  title="Skip to finish"
+                  className="bg-[#8DC63F] hover:bg-[#7ab535] text-black font-bold px-5 py-2 rounded-full text-sm transition-colors"
                 >
-                  Finish
+                  Finish 🎉
                 </button>
               ) : (
                 <button 
