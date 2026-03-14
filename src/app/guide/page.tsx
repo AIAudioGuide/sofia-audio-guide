@@ -22,6 +22,11 @@ const LANDMARKS = [
     name: 'Statue of Sofia', 
     lat: 42.697480524567204, lng: 23.322074354569015,
     viewingPoint: { lat: 42.697480524567204, lng: 23.322074354569015 },
+    exactPath: true,
+    waypointsToNext: [
+      { lat: 42.69750197081598, lng: 23.322080856915274 },  // beginning of stairs (exact)
+      { lat: 42.69758476426109, lng: 23.32210566734683 },   // end of stairs (exact)
+    ],
     desc: 'The Statue of Sofia is an iconic monument depicting the goddess Sofia. Located near St. Sofia Church, this bronze statue symbolizes the wisdom and spirit of the city. It was unveiled in 2000.',
     images: ['/images/statue-sofia-2.jpg', '/images/statue-sofia-1.jpg']
   },
