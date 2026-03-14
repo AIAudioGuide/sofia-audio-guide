@@ -597,7 +597,11 @@ export default function GuidePage() {
               {current === LANDMARKS.length - 1 ? (
                 <button
                   onClick={() => setTourFinished(true)}
-                  className="bg-[#8DC63F] hover:bg-[#7ab535] text-black font-bold px-5 py-2 rounded-full text-sm transition-colors"
+                  className={`text-black font-bold px-5 py-2 rounded-full text-sm transition-all duration-500 ${
+                    playingIndex === current
+                      ? 'bg-[#8DC63F]/30 opacity-40 blur-[1px] cursor-default'
+                      : 'bg-[#8DC63F] hover:bg-[#7ab535] opacity-100 shadow-[0_0_12px_#8DC63F88]'
+                  }`}
                 >
                   Finish 🎉
                 </button>
