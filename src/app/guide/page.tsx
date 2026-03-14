@@ -134,8 +134,8 @@ const LANDMARKS = [
   },
   { 
     name: 'St. Sofia Church', 
-    lat: 42.69630350171713, lng: 23.330998446655048,
-    viewingPoint: { lat: 42.69630350171713, lng: 23.330998446655048 },
+    lat: 42.69619793364339, lng: 23.330998906623336,
+    viewingPoint: { lat: 42.69619793364339, lng: 23.330998906623336 },
     desc: 'This 6th century Byzantine church gave Sofia its name. Before being called Sofia, the city was known as Serdica. The church is famous for beautiful golden mosaics inside. It has survived many earthquakes and reconstructions over the centuries.',
     image: '/images/st-sofia-church.jpg' 
   },
