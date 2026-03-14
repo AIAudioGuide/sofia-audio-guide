@@ -74,7 +74,7 @@ const LANDMARKS = [
     exactPath: true, // bypass Mapbox routing — draw exact polyline through these coords
     waypointsToNext: [
       { lat: 42.69779538601318, lng: 23.32347009614529 },  // top of stairs (exact)
-      { lat: 42.69770470777984, lng: 23.32366992070215 },  // bottom of stairs (exact)
+      { lat: 42.697750046913086, lng: 23.323731611504943 }, // bottom of stairs (exact)
     ],
     desc: 'The Triangle of Power is an area between the Presidency, the Council of Ministers, and the National Assembly. It is the administrative heart of Bulgaria.',
     image: '/images/triangle-power.jpg' 
