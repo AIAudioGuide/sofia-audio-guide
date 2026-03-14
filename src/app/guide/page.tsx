@@ -141,8 +141,8 @@ const LANDMARKS = [
   },
   { 
     name: 'St. Alexander Nevski Cathedral', 
-    lat: 42.696107253076505, lng: 23.33174456071087,
-    viewingPoint: { lat: 42.696107253076505, lng: 23.33174456071087 },
+    lat: 42.6960975895997, lng: 23.33169497622479,
+    viewingPoint: { lat: 42.6960975895997, lng: 23.33169497622479 },
     desc: 'This magnificent cathedral was built in 1882 in memory of Russian Tsar Alexander II who helped free Bulgaria from Ottoman rule. It is one of the biggest Eastern Orthodox cathedrals in the world. The golden dome is 45 meters high and can be seen from across the city.',
     image: '/images/alexander-nevski.jpg' 
   },
