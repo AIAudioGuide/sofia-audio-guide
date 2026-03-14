@@ -59,7 +59,8 @@ const LANDMARKS = [
     // Route back west to the Central Bath entrance, then south through the
     // governmental building passage (exact entry/exit coordinates from ground truth)
     waypointsToNext: [
-      { lat: 42.69930, lng: 23.32310 },          // back to Central Bath / Banski Square area
+      { lat: 42.69930, lng: 23.32310 },                    // back to Central Bath / Banski Square area
+      { lat: 42.69914303567948, lng: 23.323363266519536 }, // approach to passage (exact)
       { lat: 42.69875450212318, lng: 23.32320590155267 },  // passage entry (exact)
       { lat: 42.69795625548584, lng: 23.323038801978896 }, // passage exit (exact)
     ],
