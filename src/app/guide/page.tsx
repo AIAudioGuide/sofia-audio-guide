@@ -126,6 +126,9 @@ const LANDMARKS = [
     name: 'National Art Gallery', 
     lat: 42.695816585768064, lng: 23.326975133144987,
     viewingPoint: { lat: 42.695816585768064, lng: 23.326975133144987 },
+    waypointsToNext: [
+      { lat: 42.69624061620942, lng: 23.33002477539816 }, // waypoint to St. Sofia Church (exact)
+    ],
     desc: 'The National Art Gallery is housed in the former royal palace. It contains over 50,000 works of Bulgarian art from the 19th and 20th centuries.',
     image: '/images/national-art-gallery.jpg' 
   },
