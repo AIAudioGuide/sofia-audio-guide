@@ -151,91 +151,72 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         map.current!.removeSource(routeLayerId);
       }
 
-      // Build route coordinates from all landmarks (using viewingPoint and waypoints)
-      let coordinates: [number, number][] = [];
-      
-      for (let i = 0; i < landmarks.length; i++) {
-        const landmark = landmarks[i];
-        const vp = landmark.viewingPoint;
-        const point = [vp?.lng || landmark.lng, vp?.lat || landmark.lat] as [number, number];
-        
-        // Add waypoints to next stop if available
-        if (landmark.waypointsToNext && landmark.waypointsToNext.length > 0) {
-          for (const wp of landmark.waypointsToNext) {
-            coordinates.push([wp.lng, wp.lat]);
-          }
-        }
-        
-        coordinates.push(point);
-      }
+      // Build the full route by calling Mapbox Directions per segment.
+      // waypointsToNext are passed as Mapbox routing hints (not straight lines),
+      // letting us nudge specific segments without affecting others.
+      const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 
-      // Add user location if available
+      // Build stop list: optional user location + all landmark viewingPoints
+      const stops: [number, number][] = landmarks.map(l => {
+        const vp = l.viewingPoint;
+        return [vp?.lng || l.lng, vp?.lat || l.lat] as [number, number];
+      });
       if (userLocation) {
-        coordinates = [[userLocation.lng, userLocation.lat], ...coordinates];
+        stops.unshift([userLocation.lng, userLocation.lat]);
       }
 
-      // Check if any landmark has waypoints - if so, use waypoints instead of Mapbox
-      const hasWaypoints = landmarks.some(l => l.waypointsToNext && l.waypointsToNext.length > 0);
-      
-      if (hasWaypoints) {
-        // Use waypoints directly - no Mapbox routing needed
-        map.current!.addSource(routeLayerId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates: coordinates
-            }
-          }
-        });
-      } else {
-        // Use Mapbox Directions API (walking) - works from browser, no CORS issues
+      // Fetch one segment (start → optional waypoints → end) from Mapbox walking directions
+      const fetchSegment = async (segCoords: [number, number][]): Promise<[number, number][]> => {
+        const coordString = segCoords.map(c => `${c[0]},${c[1]}`).join(';');
+        const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${encodeURIComponent(coordString)}?geometries=geojson&overview=full&access_token=${token}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         try {
-          const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
-          // Mapbox Directions API supports up to 25 coordinates per request
-          // coordinates are [lng, lat] pairs joined by semicolons
-          const coordString = coordinates.map(c => `${c[0]},${c[1]}`).join(';');
-          const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${encodeURIComponent(coordString)}?geometries=geojson&overview=full&access_token=${token}`;
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-          const response = await fetch(url, { signal: controller.signal });
+          const res = await fetch(url, { signal: controller.signal });
           clearTimeout(timeoutId);
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.routes && data.routes[0]) {
-              const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
-              map.current!.addSource(routeLayerId, {
-                type: 'geojson',
-                data: {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: { type: 'LineString', coordinates: routeCoords }
-                }
-              });
-            } else {
-              throw new Error('No route in response');
-            }
-          } else {
-            throw new Error(`Mapbox Directions API error: ${response.status}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.routes?.[0]) return data.routes[0].geometry.coordinates as [number, number][];
           }
-        } catch (e) {
-          console.warn('Walking route fetch failed, falling back to straight lines:', e);
-          // Fallback to straight lines
-          map.current!.addSource(routeLayerId, {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: { type: 'LineString', coordinates }
-            }
-          });
+        } catch { /* fall through */ }
+        // Fallback: straight line for this segment
+        return segCoords;
+      };
+
+      // Determine which landmark index corresponds to each stop index
+      // (offset by 1 if userLocation is prepended)
+      const offset = userLocation ? 1 : 0;
+
+      // Fetch all segments in parallel
+      const segmentPromises = stops.slice(0, -1).map((start, i) => {
+        const end = stops[i + 1];
+        const landmarkIdx = i - offset; // index into landmarks array
+        const wpts: [number, number][] = (landmarkIdx >= 0 && landmarks[landmarkIdx]?.waypointsToNext)
+          ? landmarks[landmarkIdx].waypointsToNext!.map(wp => [wp.lng, wp.lat] as [number, number])
+          : [];
+        return fetchSegment([start, ...wpts, end]);
+      });
+
+      const segments = await Promise.all(segmentPromises);
+
+      // Stitch segments together (skip duplicate first point of each subsequent segment)
+      const allCoords: [number, number][] = [];
+      segments.forEach((seg, i) => {
+        allCoords.push(...(i === 0 ? seg : seg.slice(1)));
+      });
+
+      const fallbackCoords = stops; // straight lines as last resort
+      map.current!.addSource(routeLayerId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: allCoords.length > 1 ? allCoords : fallbackCoords
+          }
         }
-      }
+      });
 
       map.current!.addLayer({
         id: routeLayerId,
@@ -254,10 +235,10 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       onRouteShown?.(true);
 
       // Fit bounds to show entire route
-      if (coordinates.length > 1) {
-        const bounds = coordinates.reduce((b, coord) => {
+      if (stops.length > 1) {
+        const bounds = stops.reduce((b, coord) => {
           return b.extend(coord as [number, number]);
-        }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+        }, new mapboxgl.LngLatBounds(stops[0], stops[0]));
 
         map.current!.fitBounds(bounds, { padding: 40, duration: 1000 });
       }
