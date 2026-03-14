@@ -35,19 +35,28 @@ export default function ChatBot({ isOpen, onClose }: Props) {
   const stopListening = () => { if (recognitionRef.current) { recognitionRef.current.stop(); setIsListening(false); } };
 
   const currentChatAudioRef = useRef<HTMLAudioElement | null>(null);
+  const currentTtsAbortRef = useRef<AbortController | null>(null);
 
   const speakText = async (text: string) => {
+    // Cancel any in-flight TTS request
+    if (currentTtsAbortRef.current) {
+      currentTtsAbortRef.current.abort();
+      currentTtsAbortRef.current = null;
+    }
     // Stop any currently playing chat audio
     if (currentChatAudioRef.current) {
       currentChatAudioRef.current.pause();
       currentChatAudioRef.current = null;
     }
     setIsSpeaking(true);
+    const controller = new AbortController();
+    currentTtsAbortRef.current = controller;
     try {
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
+        signal: controller.signal,
       });
       const data = await res.json();
       if (data.audio) {
@@ -59,8 +68,10 @@ export default function ChatBot({ isOpen, onClose }: Props) {
       } else {
         setIsSpeaking(false);
       }
-    } catch {
-      setIsSpeaking(false);
+    } catch (e: any) {
+      if (e.name !== 'AbortError') setIsSpeaking(false);
+    } finally {
+      currentTtsAbortRef.current = null;
     }
   };
 
