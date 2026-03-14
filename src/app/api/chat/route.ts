@@ -1,46 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-if (!OPENAI_API_KEY) {
-  console.error('OPENAI_API_KEY not set in environment');
+const LANDMARKS_INFO = `
+You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks on this audio tour:
+
+1. Sveta Nedelya Cathedral - One of Sofia's oldest churches dating to the 10th century
+2. Statue of Sofia - Iconic bronze monument depicting the goddess Sofia, unveiled in 2000
+3. St. Petka of the Saddlemakers - 14th-century medieval church with beautiful frescoes
+4. Roman Ruins - Ancient Serdica remains from the 2nd-4th century AD beneath modern streets
+5. Square of Tolerance - Unique square where mosque, synagogue, and church stand near each other
+6. Central Public Bath - Historic thermal bath with Neo-Byzantine architecture
+7. Mineral Springs - Natural thermal water springs used for healing for centuries
+8. Triangle of Power - Administrative heart of Bulgaria
+9. Eastern Gate - Ancient Roman gate dating to the 2nd century AD
+10. Presidency - Official office of the President of Bulgaria
+11. Rotunda St George - One of Sofia's oldest buildings, 4th-century Roman temple
+12. City Garden - Oldest public park in Sofia, opened in 1878
+13. National Theatre Ivan Vazov - Bulgaria's oldest national theatre, built in 1907
+14. National Art Gallery - Houses over 50,000 works of Bulgarian art
+15. St. Sofia Church - 6th-century Byzantine church that gave Sofia its name
+16. St. Alexander Nevski Cathedral - Iconic gold-domed Orthodox cathedral built in 1882
+`;
+
+async function getEmbedding(text: string): Promise<number[]> {
+  const res = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input: text }),
+  });
+  const data = await res.json();
+  return data.data?.[0]?.embedding ?? [];
 }
 
-const LANDMARKS_INFO = `
-You are a knowledgeable tour guide for Sofia, Bulgaria. Here are the main landmarks on the tour (18 stops):
-
-1. Sveta Nedelya Cathedral - One of Sofia's oldest churches dating to the 10th century, located in the city center
-2. Statue of Sofia - Iconic bronze monument depicting the goddess Sofia, unveiled in 2000
-3. Catholic Cathedral St. Josef - Main Roman Catholic cathedral in Sofia, built in French Gothic style
-4. St. Petka of the Saddlemakers - 14th-century medieval church known for beautiful frescoes
-5. Roman Ruins - Ancient Serdica remains from the 2nd-4th century AD beneath Sofia's modern streets
-6. Square of Tolerance - Unique square where mosque, synagogue, and church stand near each other
-7. Central Public Bath - Historic thermal bath facility with Neo-Byzantine architecture
-8. Mineral Springs - Natural thermal water springs used for healing for centuries
-9. Triangle of Power - Administrative heart of Bulgaria between Presidency, Council of Ministers, and National Assembly
-10. Eastern Gate - Ancient Roman gate dating to the 2nd century AD, one of the best-preserved gates
-11. Presidency - Official office of the President of Bulgaria, housed in the former royal palace
-12. Rotunda St George - One of Sofia's oldest buildings, 4th-century Roman temple converted to Christian church
-13. City Garden - Oldest public park in Sofia, opened in 1878
-14. National Theatre Ivan Vazov - Bulgaria's oldest national theatre, built in 1907
-15. National Art Gallery - Houses over 50,000 works of Bulgarian art in the former royal palace
-16. Dutch Embassy - Modern embassy architecture near Vitosha Boulevard
-17. St. Sofia Church - 6th-century Byzantine church that gave Sofia its name
-18. St. Alexander Nevski Cathedral - Iconic gold-domed Orthodox cathedral built in 1882
-`;
+async function getRelevantContext(question: string): Promise<string> {
+  try {
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_ANON_KEY!
+    );
+    const embedding = await getEmbedding(question);
+    const { data, error } = await supabase.rpc('match_blog_chunks', {
+      query_embedding: embedding,
+      match_count: 5,
+      min_similarity: 0.3,
+    });
+    if (error || !data?.length) return '';
+    return data
+      .map((chunk: { title: string; content: string; url: string }) =>
+        `[From: ${chunk.title}]\n${chunk.content}`)
+      .join('\n\n');
+  } catch {
+    return ''; // RAG is optional — chat still works without it
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
 
-    const messages = [
-      { 
-        role: 'system', 
-        content: `${LANDMARKS_INFO}
+    // Try to get relevant blog context
+    const ragContext = await getRelevantContext(message);
 
-You are a friendly, informative tour guide. Answer questions about Sofia's history, culture, landmarks, and attractions. 
-Keep answers concise but interesting. If you don't know something, admit it.`
-      },
+    const systemPrompt = `${LANDMARKS_INFO}
+
+You are a friendly, informative tour guide for Sofia, Bulgaria. Answer questions about Sofia's history, culture, landmarks, food, and tips.
+Keep answers concise but interesting — you're talking to someone on a walking tour, so 2-4 sentences is ideal.
+${ragContext ? `\nHere is some relevant local knowledge from the Free Sofia Tour blog to help you answer:\n\n${ragContext}\n\nUse this information to give a richer, more specific answer.` : ''}
+If you don't know something, admit it honestly.`;
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
       ...(history || []),
       { role: 'user', content: message }
     ];
@@ -53,23 +84,20 @@ Keep answers concise but interesting. If you don't know something, admit it.`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        messages: messages,
-        max_tokens: 500,
+        messages,
+        max_tokens: 300,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('OpenAI API error:', error);
-      return NextResponse.json({ error: error }, { status: 500 });
+      return NextResponse.json({ error }, { status: 500 });
     }
 
     const data = await response.json();
     const reply = data.choices[0].message.content;
-
     return NextResponse.json({ reply });
-  } catch (error) {
-    console.error('Chat error:', error);
+  } catch (error: any) {
     return NextResponse.json({ error: 'Failed to get response' }, { status: 500 });
   }
 }
