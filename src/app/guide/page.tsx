@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import ChatBot from '@/components/ChatBot';
+import ReviewForm from '@/components/ReviewForm';
 
 const SofiaMap = dynamic(() => import('@/components/SofiaMap'), { ssr: false });
 
@@ -591,6 +592,13 @@ export default function GuidePage() {
                 </svg>
               </button>
             </div>
+
+            {/* Review form — shown only on the last stop */}
+            {current === LANDMARKS.length - 1 && (
+              <div className="mt-4 px-1">
+                <ReviewForm />
+              </div>
+            )}
           </div>
         </div>
       )}
