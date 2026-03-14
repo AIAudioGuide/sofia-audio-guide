@@ -605,35 +605,45 @@ export default function GuidePage() {
               )}
             </div>
 
-            {/* Tour completion screen */}
-            {tourFinished && (
-              <div className="mt-4 px-1 space-y-4">
-                <div className="bg-gradient-to-br from-[#1a2a0a] to-[#1a1a1a] border border-[#8DC63F]/30 rounded-2xl p-6 text-center">
-                  <div className="text-5xl mb-3">🎉</div>
-                  <h3 className="text-xl font-bold mb-1">Tour Complete!</h3>
-                  <p className="text-[#b3b3b3] text-sm mb-4">
-                    You explored {LANDMARKS.length} stops and walked through 7,000 years of Sofia's history.
-                  </p>
-                  {totalWalkingDistance > 0 && (
-                    <div className="flex justify-center gap-6 text-sm">
-                      <div>
-                        <p className="text-[#8DC63F] font-bold">{(totalWalkingDistance / 1000).toFixed(1)} km</p>
-                        <p className="text-[#666]">walked</p>
-                      </div>
-                      <div>
-                        <p className="text-[#8DC63F] font-bold">{Math.round(totalWalkingTime / 60)} min</p>
-                        <p className="text-[#666]">on foot</p>
-                      </div>
-                      <div>
-                        <p className="text-[#8DC63F] font-bold">{LANDMARKS.length}</p>
-                        <p className="text-[#666]">stops</p>
-                      </div>
-                    </div>
-                  )}
+
+          </div>
+        </div>
+      )}
+
+      {/* Tour completion overlay */}
+      {tourFinished && (
+        <div className="fixed inset-0 z-50 bg-[#121212] overflow-y-auto pb-20">
+          <div className="max-w-md mx-auto px-4 pt-12 space-y-5">
+            <div className="bg-gradient-to-br from-[#1a2a0a] to-[#1a1a1a] border border-[#8DC63F]/30 rounded-2xl p-6 text-center">
+              <div className="text-5xl mb-3">🎉</div>
+              <h3 className="text-2xl font-bold mb-2">Tour Complete!</h3>
+              <p className="text-[#b3b3b3] text-sm mb-5">
+                You explored {LANDMARKS.length} stops and walked through 7,000 years of Sofia's history.
+              </p>
+              {totalWalkingDistance > 0 && (
+                <div className="flex justify-center gap-6 text-sm">
+                  <div>
+                    <p className="text-[#8DC63F] font-bold text-lg">{(totalWalkingDistance / 1000).toFixed(1)} km</p>
+                    <p className="text-[#666]">walked</p>
+                  </div>
+                  <div>
+                    <p className="text-[#8DC63F] font-bold text-lg">{Math.round(totalWalkingTime / 60)} min</p>
+                    <p className="text-[#666]">on foot</p>
+                  </div>
+                  <div>
+                    <p className="text-[#8DC63F] font-bold text-lg">{LANDMARKS.length}</p>
+                    <p className="text-[#666]">stops</p>
+                  </div>
                 </div>
-                <ReviewForm />
-              </div>
-            )}
+              )}
+            </div>
+            <ReviewForm />
+            <button
+              onClick={() => setTourFinished(false)}
+              className="w-full text-[#555] text-sm py-2 hover:text-[#888]"
+            >
+              ← Back to map
+            </button>
           </div>
         </div>
       )}
