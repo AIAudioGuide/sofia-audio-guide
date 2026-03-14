@@ -170,6 +170,7 @@ export default function GuidePage() {
   const [routeInfo, setRouteInfo] = useState<{distance: number; duration: number}[]>([]);
   const [totalWalkingDistance, setTotalWalkingDistance] = useState(0);
   const [totalWalkingTime, setTotalWalkingTime] = useState(0);
+  const [tourFinished, setTourFinished] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopsListRef = useRef<HTMLDivElement>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -582,20 +583,51 @@ export default function GuidePage() {
                 </div>
               )}
               
-              <button 
-                onClick={next} 
-                disabled={current === LANDMARKS.length - 1} 
-                className="text-[#b3b3b3] disabled:opacity-30 hover:text-white"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-                </svg>
-              </button>
+              {current === LANDMARKS.length - 1 ? (
+                <button
+                  onClick={() => setTourFinished(true)}
+                  className="bg-[#8DC63F] hover:bg-[#7ab535] text-black font-bold px-5 py-2 rounded-full text-sm transition-colors"
+                >
+                  Finish 🎉
+                </button>
+              ) : (
+                <button 
+                  onClick={next} 
+                  className="text-[#b3b3b3] hover:text-white"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+                  </svg>
+                </button>
+              )}
             </div>
 
-            {/* Review form — shown only on the last stop */}
-            {current === LANDMARKS.length - 1 && (
-              <div className="mt-4 px-1">
+            {/* Tour completion screen */}
+            {tourFinished && (
+              <div className="mt-4 px-1 space-y-4">
+                <div className="bg-gradient-to-br from-[#1a2a0a] to-[#1a1a1a] border border-[#8DC63F]/30 rounded-2xl p-6 text-center">
+                  <div className="text-5xl mb-3">🎉</div>
+                  <h3 className="text-xl font-bold mb-1">Tour Complete!</h3>
+                  <p className="text-[#b3b3b3] text-sm mb-4">
+                    You explored {LANDMARKS.length} stops and walked through 7,000 years of Sofia's history.
+                  </p>
+                  {totalWalkingDistance > 0 && (
+                    <div className="flex justify-center gap-6 text-sm">
+                      <div>
+                        <p className="text-[#8DC63F] font-bold">{(totalWalkingDistance / 1000).toFixed(1)} km</p>
+                        <p className="text-[#666]">walked</p>
+                      </div>
+                      <div>
+                        <p className="text-[#8DC63F] font-bold">{Math.round(totalWalkingTime / 60)} min</p>
+                        <p className="text-[#666]">on foot</p>
+                      </div>
+                      <div>
+                        <p className="text-[#8DC63F] font-bold">{LANDMARKS.length}</p>
+                        <p className="text-[#666]">stops</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <ReviewForm />
               </div>
             )}
