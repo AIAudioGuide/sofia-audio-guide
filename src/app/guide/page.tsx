@@ -71,10 +71,10 @@ const LANDMARKS = [
     name: 'Triangle of Power', 
     lat: 42.69784662590975, lng: 23.323217549685875,
     viewingPoint: { lat: 42.69784662590975, lng: 23.323217549685875 },
-    // Waypoint routes down the stairs toward Eastern Gate
+    // Direct east path to Eastern Gate Serdica underpass entrance (~23.3242)
+    // Google Maps route: from EG entrance 42.6976845,23.3241637 confirms this direct path
     waypointsToNext: [
-      { lat: 42.69780367546786, lng: 23.32344856728133 },  // top of stairs (exact)
-      { lat: 42.69775349662836, lng: 23.323715518252047 }, // bottom of stairs (exact)
+      { lat: 42.69778, lng: 23.32385 }, // midpoint, keeps route east not northwest
     ],
     desc: 'The Triangle of Power is an area between the Presidency, the Council of Ministers, and the National Assembly. It is the administrative heart of Bulgaria.',
     image: '/images/triangle-power.jpg' 
