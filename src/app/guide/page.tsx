@@ -71,6 +71,7 @@ const LANDMARKS = [
     name: 'Triangle of Power', 
     lat: 42.69784662590975, lng: 23.323217549685875,
     viewingPoint: { lat: 42.69784662590975, lng: 23.323217549685875 },
+    exactPath: true, // bypass Mapbox routing — draw exact polyline through these coords
     waypointsToNext: [
       { lat: 42.69777917368611, lng: 23.32348808497838 },  // top of stairs (exact)
       { lat: 42.697700765244974, lng: 23.32367528511979 }, // bottom of stairs (exact)
@@ -158,7 +159,7 @@ export default function GuidePage() {
   // Stable landmarks array — prevents addRoute fitBounds from re-running on every render
   const mapLandmarks = useMemo(() => LANDMARKS.map((l, i) => ({
     id: i, name: l.name, lat: l.lat, lng: l.lng,
-    viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext,
+    viewingPoint: l.viewingPoint, waypointsToNext: l.waypointsToNext, exactPath: l.exactPath,
   })), []);
 
   // Fetch real walking distances from Google

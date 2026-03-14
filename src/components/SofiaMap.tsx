@@ -11,6 +11,8 @@ type Landmark = {
   lng: number;
   viewingPoint?: { lat: number; lng: number };
   waypointsToNext?: { lat: number; lng: number }[];
+  // When true, waypointsToNext are used as-is (exact polyline), Mapbox routing skipped
+  exactPath?: boolean;
 };
 
 
@@ -165,7 +167,7 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
         stops.unshift([userLocation.lng, userLocation.lat]);
       }
 
-      // Fetch one segment (start → optional waypoints → end) from Mapbox walking directions
+      // Fetch one segment from Mapbox walking directions
       const fetchSegment = async (segCoords: [number, number][]): Promise<[number, number][]> => {
         const coordString = segCoords.map(c => `${c[0]},${c[1]}`).join(';');
         const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${encodeURIComponent(coordString)}?geometries=geojson&overview=full&access_token=${token}`;
@@ -191,9 +193,14 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
       const segmentPromises = stops.slice(0, -1).map((start, i) => {
         const end = stops[i + 1];
         const landmarkIdx = i - offset; // index into landmarks array
-        const wpts: [number, number][] = (landmarkIdx >= 0 && landmarks[landmarkIdx]?.waypointsToNext)
-          ? landmarks[landmarkIdx].waypointsToNext!.map(wp => [wp.lng, wp.lat] as [number, number])
+        const landmark = landmarkIdx >= 0 ? landmarks[landmarkIdx] : null;
+        const wpts: [number, number][] = landmark?.waypointsToNext
+          ? landmark.waypointsToNext.map(wp => [wp.lng, wp.lat] as [number, number])
           : [];
+        // exactPath: skip Mapbox, use waypoints as a direct polyline (guaranteed path)
+        if (landmark?.exactPath && wpts.length > 0) {
+          return Promise.resolve([start, ...wpts, end] as [number, number][]);
+        }
         return fetchSegment([start, ...wpts, end]);
       });
 
