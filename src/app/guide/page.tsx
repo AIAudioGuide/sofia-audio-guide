@@ -57,11 +57,11 @@ const LANDMARKS = [
     lat: 42.699932703728685, lng: 23.324078481733565,
     viewingPoint: { lat: 42.699932703728685, lng: 23.324078481733565 },
     // Route back west to the Central Bath entrance, then south through the
-    // governmental building passage / fountain garden (Градина с фонтан) to Triangle of Power
+    // governmental building passage (exact entry/exit coordinates from ground truth)
     waypointsToNext: [
-      { lat: 42.69930, lng: 23.32310 }, // back to Central Bath / Banski Square area
-      { lat: 42.69870, lng: 23.32265 }, // entrance to governmental building passage
-      { lat: 42.69820, lng: 23.32268 }, // through the backyard garden
+      { lat: 42.69930, lng: 23.32310 },          // back to Central Bath / Banski Square area
+      { lat: 42.69875450212318, lng: 23.32320590155267 },  // passage entry (exact)
+      { lat: 42.69795625548584, lng: 23.323038801978896 }, // passage exit (exact)
     ],
     desc: 'Sofia is built on numerous mineral water springs. The mineral springs location allows visitors to taste the natural thermal water that has been used for healing purposes for centuries.',
     image: '/images/mineral-springs.jpg'
