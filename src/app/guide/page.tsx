@@ -71,6 +71,10 @@ const LANDMARKS = [
     name: 'Triangle of Power', 
     lat: 42.69784662590975, lng: 23.323217549685875,
     viewingPoint: { lat: 42.69784662590975, lng: 23.323217549685875 },
+    // Waypoint routes down the stairs toward Eastern Gate
+    waypointsToNext: [
+      { lat: 42.69780367546786, lng: 23.32344856728133 }, // stairs down (exact)
+    ],
     desc: 'The Triangle of Power is an area between the Presidency, the Council of Ministers, and the National Assembly. It is the administrative heart of Bulgaria.',
     image: '/images/triangle-power.jpg' 
   },
