@@ -7,14 +7,15 @@ type Props = { isOpen: boolean; onClose: () => void; };
 
 export default function ChatBot({ isOpen, onClose }: Props) {
   const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: 'Hi! I\'m your Sofia guide. Ask me anything! 🇧🇬' }]);
-  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [interimText, setInterimText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const currentChatAudioRef = useRef<HTMLAudioElement | null>(null);
   const currentTtsAbortRef = useRef<AbortController | null>(null);
+  const isHoldingRef = useRef(false);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -25,13 +26,27 @@ export default function ChatBot({ isOpen, onClose }: Props) {
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
+
       recognitionRef.current.onresult = (event) => {
-        const transcript = Array.from(event.results).map(result => result[0].transcript).join('');
-        if (event.results[0].isFinal) setInput(transcript);
+        const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+        setInterimText(transcript);
+        if (event.results[event.results.length - 1].isFinal) {
+          setInterimText('');
+          sendMessage(transcript);
+        }
       };
-      recognitionRef.current.onend = () => { setIsListening(false); if (input.trim()) sendMessage(input); };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+        setInterimText('');
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+        setInterimText('');
+      };
     }
-  }, [input]);
+  }, []);
 
   const stopAudio = () => {
     if (currentTtsAbortRef.current) { currentTtsAbortRef.current.abort(); currentTtsAbortRef.current = null; }
@@ -68,20 +83,21 @@ export default function ChatBot({ isOpen, onClose }: Props) {
     }
   };
 
-  const sendMessage = async (messageText?: string) => {
-    const text = messageText || input;
+  const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
-    const userMessage = text.trim();
-    setInput('');
     stopAudio();
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages(prev => [...prev, { role: 'user', content: text.trim() }]);
     setIsLoading(true);
     try {
-      const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: userMessage, history: messages.slice(-6) }) });
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text.trim(), history: messages.slice(-6) })
+      });
       const data = await response.json();
       if (data.reply) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-        speakText(data.reply); // auto-play — no button needed
+        speakText(data.reply);
       } else {
         setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, try again!' }]);
       }
@@ -92,12 +108,22 @@ export default function ChatBot({ isOpen, onClose }: Props) {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+  // Hold to record handlers
+  const startHold = () => {
+    if (!recognitionRef.current || isLoading) return;
+    isHoldingRef.current = true;
+    stopAudio();
+    setIsListening(true);
+    setInterimText('');
+    try { recognitionRef.current.start(); } catch {}
+  };
 
-  const handleMic = () => {
-    if (isListening) { recognitionRef.current?.stop(); setIsListening(false); return; }
-    stopAudio(); // stop audio when user starts speaking
-    if (recognitionRef.current) { setIsListening(true); recognitionRef.current.start(); }
+  const endHold = () => {
+    isHoldingRef.current = false;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+    setIsListening(false);
   };
 
   if (!isOpen) return null;
@@ -131,9 +157,9 @@ export default function ChatBot({ isOpen, onClose }: Props) {
           <div className="flex justify-start">
             <div className="bg-[#282828] p-3 rounded-xl">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce" style={{animationDelay: '0.1s'}} />
+                <div className="w-2 h-2 bg-[#b3b3b3] rounded-full animate-bounce" style={{animationDelay: '0.2s'}} />
               </div>
             </div>
           </div>
@@ -141,33 +167,34 @@ export default function ChatBot({ isOpen, onClose }: Props) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="bg-[#181818] p-4">
-        <div className="flex gap-2 items-center">
-          <button
-            onClick={handleMic}
-            className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-500 animate-pulse' : 'bg-[#282828] hover:bg-[#333]'}`}
-            title={isListening ? 'Stop listening' : 'Speak'}
-          >
-            🎤
-          </button>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask about Sofia..."
-            className="flex-1 bg-[#282828] text-white px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-[#8DC63F]"
-            disabled={isLoading}
-          />
-          <button
-            onClick={() => sendMessage()}
-            disabled={isLoading || !input.trim()}
-            className="bg-[#00D47E] text-black p-3 rounded-full disabled:opacity-50 hover:bg-[#00b368] transition-colors"
-          >
-            ➤
-          </button>
-        </div>
+      {/* Hold-to-record bar */}
+      <div className="bg-[#181818] p-6 flex flex-col items-center gap-3">
+        {isListening && interimText && (
+          <p className="text-[#b3b3b3] text-sm italic text-center px-4">{interimText}</p>
+        )}
+        {isListening ? (
+          <p className="text-red-400 text-xs">Release to send</p>
+        ) : (
+          <p className="text-[#555] text-xs">{isLoading ? 'Thinking...' : 'Hold to speak'}</p>
+        )}
+
+        <button
+          onMouseDown={startHold}
+          onMouseUp={endHold}
+          onMouseLeave={endHold}
+          onTouchStart={(e) => { e.preventDefault(); startHold(); }}
+          onTouchEnd={(e) => { e.preventDefault(); endHold(); }}
+          disabled={isLoading}
+          className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-150 select-none
+            ${isListening
+              ? 'bg-red-500 scale-110 shadow-[0_0_24px_rgba(239,68,68,0.6)]'
+              : isLoading
+                ? 'bg-[#282828] opacity-50 cursor-not-allowed'
+                : 'bg-[#8DC63F] hover:bg-[#7ab535] active:scale-95 shadow-[0_0_16px_rgba(141,198,63,0.4)]'
+            }`}
+        >
+          🎤
+        </button>
       </div>
     </div>
   );
