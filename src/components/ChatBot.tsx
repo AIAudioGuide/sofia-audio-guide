@@ -34,16 +34,33 @@ export default function ChatBot({ isOpen, onClose }: Props) {
   const startListening = () => { if (recognitionRef.current) { setIsListening(true); recognitionRef.current.start(); } };
   const stopListening = () => { if (recognitionRef.current) { recognitionRef.current.stop(); setIsListening(false); } };
 
-  const speakText = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
+  const currentChatAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const speakText = async (text: string) => {
+    // Stop any currently playing chat audio
+    if (currentChatAudioRef.current) {
+      currentChatAudioRef.current.pause();
+      currentChatAudioRef.current = null;
+    }
+    setIsSpeaking(true);
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (data.audio) {
+        const audio = new Audio('data:audio/mpeg;base64,' + data.audio);
+        currentChatAudioRef.current = audio;
+        audio.onended = () => { setIsSpeaking(false); currentChatAudioRef.current = null; };
+        audio.onerror = () => { setIsSpeaking(false); currentChatAudioRef.current = null; };
+        audio.play();
+      } else {
+        setIsSpeaking(false);
+      }
+    } catch {
+      setIsSpeaking(false);
     }
   };
 
