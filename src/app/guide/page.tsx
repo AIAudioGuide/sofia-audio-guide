@@ -117,8 +117,8 @@ const LANDMARKS = [
   },
   { 
     name: 'National Theatre Ivan Vazov', 
-    lat: 42.69470518828565, lng: 23.325643995581537,
-    viewingPoint: { lat: 42.69470518828565, lng: 23.325643995581537 },
+    lat: 42.694659, lng: 23.325590,
+    viewingPoint: { lat: 42.694659, lng: 23.325590 },
     desc: 'The Ivan Vazov National Theatre is Bulgaria\'s oldest national theatre. The current building dates to 1907 and is considered one of the most beautiful buildings in Sofia.',
     image: '/images/national-theatre.jpg' 
   },
