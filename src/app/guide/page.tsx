@@ -85,6 +85,12 @@ const LANDMARKS = [
     name: 'Eastern Gate', 
     lat: 42.69769878101138, lng: 23.324164369455954,
     viewingPoint: { lat: 42.69769878101138, lng: 23.324164369455954 },
+    // Exit via stairs closer to the Presidency (different from entry stairs)
+    exactPath: true,
+    waypointsToNext: [
+      { lat: 42.697075961005304, lng: 23.324172304669418 }, // beginning of exit stairs (exact)
+      { lat: 42.69699218123684, lng: 23.32414280037243 },   // end of exit stairs (exact)
+    ],
     desc: 'The Eastern Gate (Serdica Gate) is an ancient Roman gate in Sofia that was part of the city walls. It dates back to the 2nd century AD and is one of the best-preserved gates.',
     image: '/images/eastern-gate.jpg' 
   },
