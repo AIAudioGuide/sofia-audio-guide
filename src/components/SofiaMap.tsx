@@ -199,8 +199,10 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
           : [];
         // exactPath: skip Mapbox, use waypoints as a direct polyline (guaranteed path)
         if (landmark?.exactPath && wpts.length > 0) {
+          console.log(`[route] segment ${i} (${landmark.name}): EXACT PATH`, wpts);
           return Promise.resolve([start, ...wpts, end] as [number, number][]);
         }
+        console.log(`[route] segment ${i} (${landmark?.name ?? 'user→stop1'}): Mapbox, exactPath=${landmark?.exactPath}, wpts=${wpts.length}`);
         return fetchSegment([start, ...wpts, end]);
       });
 
