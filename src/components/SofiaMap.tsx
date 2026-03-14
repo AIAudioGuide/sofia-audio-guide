@@ -13,44 +13,6 @@ type Landmark = {
   waypointsToNext?: { lat: number; lng: number }[];
 };
 
-// Decode Google polyline to coordinates
-function decodePolyline(encoded: string): [number, number][] {
-  const poly: [number, number][] = [];
-  let index = 0;
-  let lat = 0;
-  let lng = 0;
-  
-  while (index < encoded.length) {
-    let b: number;
-    let shift = 0;
-    let result = 0;
-    
-    do {
-      b = encoded.charCodeAt(index++) - 63;
-      result |= (b & 0x1f) << shift;
-      shift += 5;
-    } while (b >= 0x20);
-    
-    const dlat = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
-    lat += dlat;
-    
-    shift = 0;
-    result = 0;
-    
-    do {
-      b = encoded.charCodeAt(index++) - 63;
-      result |= (b & 0x1f) << shift;
-      shift += 5;
-    } while (b >= 0x20);
-    
-    const dlng = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
-    lng += dlng;
-    
-    poly.push([lng / 1e5, lat / 1e5]);
-  }
-  
-  return poly;
-}
 
 type Props = {
   landmarks: Landmark[];
@@ -229,38 +191,40 @@ export default function SofiaMap({ landmarks, currentLandmark, onSelectLandmark,
           }
         });
       } else {
-        // Try Google Directions API when no waypoints
+        // Use Mapbox Directions API (walking) - works from browser, no CORS issues
         try {
-          const coordString = coordinates.map(c => `${c[1]},${c[0]}`).join('|');
-          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_DIRECTIONS_API_KEY || '';
-          const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${coordString}&mode=walking&key=${apiKey}`;
-          
+          const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
+          // Mapbox Directions API supports up to 25 coordinates per request
+          // coordinates are [lng, lat] pairs joined by semicolons
+          const coordString = coordinates.map(c => `${c[0]},${c[1]}`).join(';');
+          const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${encodeURIComponent(coordString)}?geometries=geojson&overview=full&access_token=${token}`;
+
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000);
-          
+
           const response = await fetch(url, { signal: controller.signal });
           clearTimeout(timeoutId);
-          
+
           if (response.ok) {
             const data = await response.json();
-            if (data.routes && data.routes[0] && data.routes[0].overview_polyline) {
-              const encoded = data.routes[0].overview_polyline.points;
-              const decoded = decodePolyline(encoded);
+            if (data.routes && data.routes[0]) {
+              const routeCoords = data.routes[0].geometry.coordinates as [number, number][];
               map.current!.addSource(routeLayerId, {
                 type: 'geojson',
                 data: {
                   type: 'Feature',
                   properties: {},
-                  geometry: { type: 'LineString', coordinates: decoded }
+                  geometry: { type: 'LineString', coordinates: routeCoords }
                 }
               });
             } else {
-              throw new Error('No route');
+              throw new Error('No route in response');
             }
           } else {
-            throw new Error('Google failed');
+            throw new Error(`Mapbox Directions API error: ${response.status}`);
           }
         } catch (e) {
+          console.warn('Walking route fetch failed, falling back to straight lines:', e);
           // Fallback to straight lines
           map.current!.addSource(routeLayerId, {
             type: 'geojson',
