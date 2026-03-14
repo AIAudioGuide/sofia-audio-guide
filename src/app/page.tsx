@@ -20,7 +20,7 @@ export default function Home() {
           Your Personal Audio Guide
         </p>
         <p className="text-[#888] mb-8 max-w-md relative z-10">
-          Discover 17 landmarks in a 2km walk through 7000 years of history
+          Discover 16 landmarks in a 2km walk through 7000 years of history
         </p>
         
         <Link href="/guide" className="inline-block bg-[#8DC63F] hover:bg-[#00c470] text-black font-bold py-4 px-8 rounded-full text-lg relative z-10">
@@ -98,7 +98,7 @@ export default function Home() {
       {/* Preview Stops */}
       <div className="px-6 mt-10">
         <h2 className="text-2xl font-bold mb-4">What You'll Discover</h2>
-        <p className="text-[#888] mb-4">17 stops including:</p>
+        <p className="text-[#888] mb-4">16 stops including:</p>
         <div className="space-y-3">
           {[
             { name: 'Sveta Nedelya Cathedral', desc: '10th century Orthodox cathedral in the heart of Sofia', emoji: '⛪' },
@@ -143,7 +143,7 @@ export default function Home() {
       <div className="px-6 mt-10 pb-10">
         <div className="bg-gradient-to-r from-[#8DC63F] to-[#00b368] p-8 rounded-2xl text-center">
           <h2 className="text-2xl font-bold text-black mb-2">Ready to Explore Sofia?</h2>
-          <p className="text-black/70 mb-6">17 landmarks • 2km walk • 7000 years of history</p>
+          <p className="text-black/70 mb-6">16 landmarks • 2km walk • 7000 years of history</p>
           <Link href="/guide" className="inline-block bg-black hover:bg-gray-900 text-white font-bold py-4 px-10 rounded-full text-lg">
             Start Tour — €10
           </Link>
