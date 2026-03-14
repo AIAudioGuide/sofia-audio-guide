@@ -46,8 +46,8 @@ const LANDMARKS = [
   },
   { 
     name: 'Square of Tolerance', 
-    lat: 42.698976854779225, lng: 23.322591427324415,
-    viewingPoint: { lat: 42.698976854779225, lng: 23.322591427324415 },
+    lat: 42.698982, lng: 23.322562,
+    viewingPoint: { lat: 42.698982, lng: 23.322562 },
     desc: 'The Square of Tolerance is a unique public space where a mosque, synagogue, and church stand near each other, symbolizing the religious tolerance of Sofia. It is one of the few places in the world where three Abrahamic faiths coexist in such close proximity.',
     images: ['/images/square-tolerance-1.jpg', '/images/square-tolerance-2.jpg', '/images/square-tolerance-3.jpg', '/images/square-tolerance-4.jpg']
   },
