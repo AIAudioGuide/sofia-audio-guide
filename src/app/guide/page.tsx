@@ -311,6 +311,7 @@ export default function GuidePage() {
             setPlayingIndex(null);
             setAudioTime(0);
             setAudioDuration(0);
+            if (index === LANDMARKS.length - 1) setTourFinished(true);
           };
           setLoading(false);
           return;
@@ -334,6 +335,7 @@ export default function GuidePage() {
           setPlayingIndex(null);
           setAudioTime(0);
           setAudioDuration(0);
+          if (index === LANDMARKS.length - 1) setTourFinished(true);
         };
       }
     } catch (e: any) { setError(e.message); } 
@@ -586,9 +588,10 @@ export default function GuidePage() {
               {current === LANDMARKS.length - 1 ? (
                 <button
                   onClick={() => setTourFinished(true)}
-                  className="bg-[#8DC63F] hover:bg-[#7ab535] text-black font-bold px-5 py-2 rounded-full text-sm transition-colors"
+                  className="text-[#8DC63F] hover:text-[#7ab535] font-bold text-sm transition-colors opacity-60 hover:opacity-100"
+                  title="Skip to finish"
                 >
-                  Finish 🎉
+                  Finish
                 </button>
               ) : (
                 <button 
