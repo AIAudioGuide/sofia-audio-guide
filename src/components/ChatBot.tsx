@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import CameraButton from './CameraButton';
+import ReactMarkdown from 'react-markdown';
 
 type Message = { role: 'user' | 'assistant'; content: string; };
 
@@ -176,7 +177,23 @@ export default function ChatBot({ isOpen, onClose }: Props) {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-[#00D47E] text-black' : 'bg-[#282828] text-white'}`}>
-              {msg.role === 'assistant' ? linkify(msg.content) : msg.content}
+              {msg.role === 'assistant' ? (
+                <ReactMarkdown
+                  components={{
+                    a: ({ href, children }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer"
+                        className="underline text-[#8DC63F] hover:text-[#aee05a] break-all"
+                        onClick={(e) => e.stopPropagation()}>
+                        {children}
+                      </a>
+                    ),
+                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                    strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              ) : msg.content}
             </div>
           </div>
         ))}
