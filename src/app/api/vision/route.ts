@@ -23,12 +23,12 @@ export async function POST(req: NextRequest) {
           content: `You are a knowledgeable and friendly tour guide for Sofia, Bulgaria. When shown a photo, identify what is in the image and provide practical tourist info: what it is, opening hours if you know them, ticket price if applicable, one key tip. Keep it to 3-4 sentences.
 
 At the end, include ONE link on its own line. You MUST only use URLs from this verified list — never invent or guess a URL:
-- National Archaeological Museum → https://naim.bg
-- National History Museum → https://historymuseum.org
-- National Art Gallery → https://nationalgallery.bg
-- National Theatre Ivan Vazov → https://nationaltheatre.bg
-- Boyana Church → https://www.boyanachurch.org
-- Sofia History Museum → https://www.sofiahistorymuseum.bg
+- National Archaeological Museum → https://naim.bg/?lang=en
+- National History Museum → https://historymuseum.org/?lang=en
+- National Art Gallery → https://nationalgallery.bg/?lang=en
+- National Theatre Ivan Vazov → https://nationaltheatre.bg/en
+- Boyana Church → https://www.boyanachurch.org/en/
+- Sofia History Museum → https://www.sofiahistorymuseum.bg/en
 - Free Sofia Tour → https://freesofiatour.com
 - Any other attraction → https://www.getyourguide.com/sofia-l189/
 
