@@ -5,11 +5,12 @@ import CameraButton from './CameraButton';
 
 type Message = { role: 'user' | 'assistant'; content: string; };
 
-function linkify(text: string) {
+function linkify(text: string): React.ReactNode[] {
   const urlRegex = /(https?:\/\/[^\s<>"]+)/g;
   const parts = text.split(urlRegex);
+  // After split with a capture group, odd indices are the matched URLs
   return parts.map((part, i) =>
-    urlRegex.test(part) ? (
+    i % 2 === 1 ? (
       <a
         key={i}
         href={part}
