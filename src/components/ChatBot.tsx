@@ -77,7 +77,11 @@ export default function ChatBot({ isOpen, onClose }: Props) {
     setIsSpeaking(false);
   };
 
+  const stripUrls = (text: string) =>
+    text.replace(/https?:\/\/[^\s<>"]+/g, '').replace(/\s{2,}/g, ' ').trim();
+
   const speakText = async (text: string) => {
+    text = stripUrls(text);
     stopAudio();
     setIsSpeaking(true);
     const controller = new AbortController();
