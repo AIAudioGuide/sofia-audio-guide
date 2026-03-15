@@ -4,6 +4,27 @@ import { useState, useRef, useEffect } from 'react';
 import CameraButton from './CameraButton';
 
 type Message = { role: 'user' | 'assistant'; content: string; };
+
+function linkify(text: string) {
+  const urlRegex = /(https?:\/\/[^\s<>"]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) =>
+    urlRegex.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline text-[#8DC63F] hover:text-[#aee05a] break-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
 type Props = { isOpen: boolean; onClose: () => void; };
 
 export default function ChatBot({ isOpen, onClose }: Props) {
@@ -150,7 +171,7 @@ export default function ChatBot({ isOpen, onClose }: Props) {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-[#00D47E] text-black' : 'bg-[#282828] text-white'}`}>
-              {msg.content}
+              {msg.role === 'assistant' ? linkify(msg.content) : msg.content}
             </div>
           </div>
         ))}
