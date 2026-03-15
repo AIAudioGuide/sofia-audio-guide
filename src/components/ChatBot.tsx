@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import CameraButton from './CameraButton';
 
 type Message = { role: 'user' | 'assistant'; content: string; };
 type Props = { isOpen: boolean; onClose: () => void; };
@@ -178,23 +179,36 @@ export default function ChatBot({ isOpen, onClose }: Props) {
           <p className="text-[#555] text-xs">{isLoading ? 'Thinking...' : 'Hold to speak'}</p>
         )}
 
-        <button
-          onMouseDown={startHold}
-          onMouseUp={endHold}
-          onMouseLeave={endHold}
-          onTouchStart={(e) => { e.preventDefault(); startHold(); }}
-          onTouchEnd={(e) => { e.preventDefault(); endHold(); }}
-          disabled={isLoading}
-          className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-150 select-none
-            ${isListening
-              ? 'bg-red-500 scale-110 shadow-[0_0_24px_rgba(239,68,68,0.6)]'
-              : isLoading
-                ? 'bg-[#282828] opacity-50 cursor-not-allowed'
-                : 'bg-[#8DC63F] hover:bg-[#7ab535] active:scale-95 shadow-[0_0_16px_rgba(141,198,63,0.4)]'
-            }`}
-        >
-          🎤
-        </button>
+        <div className="flex items-center gap-6">
+          <CameraButton
+            onResult={(message) => {
+              setMessages(prev => [...prev, { role: 'assistant', content: message }]);
+              speakText(message);
+            }}
+            onError={(error) => {
+              setMessages(prev => [...prev, { role: 'assistant', content: error }]);
+            }}
+            disabled={isLoading || isListening}
+          />
+
+          <button
+            onMouseDown={startHold}
+            onMouseUp={endHold}
+            onMouseLeave={endHold}
+            onTouchStart={(e) => { e.preventDefault(); startHold(); }}
+            onTouchEnd={(e) => { e.preventDefault(); endHold(); }}
+            disabled={isLoading}
+            className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all duration-150 select-none
+              ${isListening
+                ? 'bg-red-500 scale-110 shadow-[0_0_24px_rgba(239,68,68,0.6)]'
+                : isLoading
+                  ? 'bg-[#282828] opacity-50 cursor-not-allowed'
+                  : 'bg-[#8DC63F] hover:bg-[#7ab535] active:scale-95 shadow-[0_0_16px_rgba(141,198,63,0.4)]'
+              }`}
+          >
+            🎤
+          </button>
+        </div>
       </div>
     </div>
   );
